@@ -1,0 +1,7 @@
+name,absence,rle,dx,dy,symType,period,required,req dx,req dy
+unix,10,b2o$b2o3$3o$2obo2b2o$2b2o2b2o$2b2o!,-4,-4,@,6,b2o$4o$4o$4o$7o$b7o$2b6o$3b4o!,-4,-4
+middleweight,10,6b2o$4bo4bo2$3bo6bo$b3obob2ob3o$o4bo3bo3bo$b5o2b2obobo$6bo2bob2o$3bob5o$2bobo5b3o$2bobo3b2o3bo$b2ob2obobob2o$8bo2bo$9bobo$7bobob2o$7b2o!,-7,-8,@,6,4b6o$3b8o$b12o$14o$b13o$3b10o$3b11o$2bob9o$2bob10o$b2ob9o$6b6o$8b4o$7b6o$7b4o!,-7,-6
+domino fountain,10,9b2o2$5bo8bo$4b2o8b2o$4b2o8b2o$7b6o$2bo14bo$b4o10b4o$o3bo10bo3bo$b3o12b3o3$b3o12b3o$o3bo10bo3bo$2ob2o10b2ob2o!,-10,-8,@,6,4b12o$3b14o$2b16o$b18o$20o$20o$20o$5o10b5o$5o10b5o$5o10b5o$5o10b5o$b3o11b5o!,-10,-5
+pipsquirter,10,5bo$5bo2$3bo3bo$b3obob3o$o3b2o4bo$ob2o2b2obobo$bo2b2o2b2obo$2b2o2b2obobob2o$4bo2bobobob2o$4b4ob2o$8bo$6bobo$6b2o!,-8,-7,@,6,3b5o$b9o$11o$12o$b12o$2b11o$4b9o$4b7o$6b3o$6b3o$6b2o!,-8,-4
+t nosed,10,5bo$5bo$4b3o2$4b3o2$2o2b3o2b2o$obo2bo2bobo$bo7bo2$bo7bo$obo2bo2bobo$2o2b3o2b2o2$4b3o2$4b3o$5bo$5bo!,-6,-10,@,6,4b3o$4b3o$2b7o$11o$11o$11o$11o$11o$11o$11o$2b7o$4b3o$4b3o!,-6,-7
+thumb,10,4bo$5bo$bo4bo$o3b3o$3o4b2o$5bobo$6obo$o5bo$3b3o$3bo!,-5,-5,@,6,4b2o$b6o$7o$9o$8o$8o$7o$6o$3bo!,-5,-4

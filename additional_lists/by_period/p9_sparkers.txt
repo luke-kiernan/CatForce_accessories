@@ -1,0 +1,10 @@
+
+============ period 9 ============
+===48P9 (weak dot)===
+cat 4b2o$b2o2bo$4bo$4bo8b2o$o12bo$4b2o5bobo$2b2ob2o4b2o$6b2o$6b3o$6b2o$2b2ob2o4b2o$4b2o5bobo$o12bo$4bo8b2o$4bo$b2o2bo$4b2o! 12 -8 -9 @ required b3o$b3o$5o$6o5b2o$7o4b2o$10ob2o$13o$13o$13o$13o$13o$10ob2o$7o4b2o$6o5b2o$5o$b3o$b3o! -6 -9 forbidden 13bo$4b2o6bobo$b2o2bo7b2o$4bo$4bo8b2o$o12bo$4b2o5bobo$2b2ob2o4b2o$6b2o$6b3o$6b2o$2b2ob2o4b2o$4b2o5bobo$o12bo$4bo8b2o$4bo$b2o2bo$4b2o! -8 -10 forbidden 4b2o$b2o2bo$4bo$4bo8b2o$o12bo$4b2o5bobo$2b2ob2o4b2o$6b2o$6b3o$6b2o$2b2ob2o4b2o$4b2o5bobo$o12bo$4bo8b2o$4bo$b2o2bo7b2o$4b2o6bobo$13bo! -8 -9 period 9
+===60P9 (dot)===
+cat 9bo$8bobo$4bo3bobo3bo$3bobo7bobo$2bobo3b3o3bo$3bo3bo3bo$7b4obo$5b2o4bobob2o$b2obobob2obobo3bo$o3bobob2obobob2o$b2obobo4b2o$5bob4o$6bo3bo3bo$3bo3b3o3bobo$2bobo7bobo$3bo3bobo3bo$7bobo$8bo! 12 -9 -9 . required 4b2obob2o$2b11o$b12o$b13o$14o$13o$15o$13o$14o$14o$13o$b12o$b11o$3b2obob2o! -7 -7 period 9
+===50P9 (domino)===
+cat 8b2o2$4b2o6b2o$7b4o$3bobo6bobo$b3obobo2bobob3o$o3b2ob4ob2o3bo$b2o3bo4bo3b2o$3b2o2bo2bo2b2o$3bob2o4b2obo! 12 -9 -5 @ required 4b10o$3b12o$3b12o$b16o$18o$b16o$3b12o$3bob8obo! -9 -3 period 9
+===104P9 (large heavyweight)===
+cat 8b2o$6bo4bo$2b2o10b2o$2bo2bo6bo2bo$3b3ob4ob3o$6bo4bo$3b3o6b3o$2bo12bo$3b5o2b5o$8b2o$5b2o4b2o$4bobo4bobo$4b2o6b2o3$6b2o2b2o$5bo2b2o2bo$3bobob4obobo$b3obobo2bobob3o$o3b2ob4ob2o3bo$b2o3bo4bo3b2o$3b2o2bo2bo2b2o$3bob2o4b2obo! 12 -9 -12 @ required 2b14o$2b14o$3b12o$3b12o$3b12o$2b14o$3b12o$4b10o$4b10o$4b10o$4b10o$4b10o$4b10o$4b10o$3b12o$3b12o$b16o$18o$b16o$3b12o$3bob8obo! -9 -10 period 9

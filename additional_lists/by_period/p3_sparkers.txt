@@ -1,0 +1,14 @@
+
+# ============ period 3 ============
+# ===candlefrobra===
+cat 2b2o$2b2o2$4o$o3bo$2bobo2$bo2bo$bobo$2bo! 6 -3 -5 * required 2b2o$2b2o2$4o$5o$b4o$b4o$b3o$b3o$2bo! -3 -5 period 3
+# ===caterer===
+cat 2bo$o3b4o$o3bo$o$3bo$b2o! 6 -4 -3 * required 7o$6o$5o$4o$b2o! -4 -2 period 3
+# ===30P3===
+cat 12b2o$6b2o4b2o$2bob4o3bo$3o2bobob7o$15bo$2b2o7b2o$3bo5b3obo$9b4o$9bo! 6 -8 -5 * required 11b2o$7b6o$b10o$15o$b14o$b13o$2b9obo$8b4o! -7 -5 forbidden 12b2o$6b2o4b2o$2bob4o3bo$3o2bobob7ob2o$15bobobo$2b2o7b2o5bo$3bo5b3obo$9b4o$9bo! -8 -5 period 3
+# ===odd keys===
+cat 2bo6bo$bo2bo2bo2bo$o10bo$b2ob4ob2o$5b2o! 6 -6 -3 @ required b3o4b3o$12o$b10o$5b2o! -6 -2 period 3
+# ===jam===
+cat 3b2o$2bo2bo$o2bobo$o3bo$o$3bo$b2o! 6 -3 -4 @ required 3b2o$2b4o$6o$5o$3o$b3o$b2o! -3 -4 period 3
+# ===258P3 (large domino)===
+cat 13b2o2$3b2o3bob2o4b2obo3b2o$2bo3bobo3b4o3bobo3bo$2bobo5bo2b2o2bo5bobo$b2o6b2o2b2o2b2o6b2o$o2b3o4b2o4b2o4b3o2bo$2o4b3o3b4o3b3o4b2o$2b3ob3o10b3ob3o$2o5bo4b4o4bo5b2o$bobo3b2o10b2o3bobo$o2b3o3bo2bo2bo2bo3b3o2bo$b2o3b2o3b6o3b2o3b2o$2bobo4b2o2b2o2b2o4bobo$2bob2obobo3b2o3bobob2obo$b2o2bob5o4b5obo2b2o$o2bob2o4b6o4b2obo2bo$bobobobobo8bobobobobo$2obo6b8o6bob2o$3b2o2b2o10b2o2b2o$2obo2bo2b3ob2ob3o2bo2bob2o$o3b2o2bo2bob2obo2bo2b2o3bo$b3o5b2o6b2o5b3o$3bo20bo! 6 -14 -12 @ required 3b22o$2b24o$2b24o$b26o$28o$28o$2b24o$28o$b26o$28o$b26o$2b24o$2b24o$b26o$28o$b26o$28o$26o$28o$28o$b26o$3b22o! -14 -10 period 3
