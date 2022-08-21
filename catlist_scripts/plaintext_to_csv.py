@@ -27,7 +27,7 @@ with open(sys.argv[1]) as f:
             assert(data[5] in ['@', '*', '.','/', 'x', '+', '|', '-']),f"Symmetry character wrong in line: \n\t \'{line}\'"
             csvEntries[-1].append(data[5])
             if 'period' in data:
-                csvEntries[-1].append(data[data.index['period']+1])
+                csvEntries[-1].append(data[data.index('period')+1])
                 periodic = True
             for keyword in ["required"]: #, "locus"]:
                 if keyword in data:

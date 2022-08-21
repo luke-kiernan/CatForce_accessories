@@ -215,7 +215,7 @@ for entryBboxes in rectanglesInRow:
 
 
         
-keys = ['name', 'stable', 'rle', 'dx', 'dy', 'symType', 'period', 'required', 'req dx', 'req dy']
+keys = ['name', 'absence', 'rle', 'dx', 'dy', 'symType', 'period', 'required', 'req dx', 'req dy']
 for i in range(1, maxForbidden+1):
     keys += [f'forbidden {i}', f'forbid {i} dx', f'forbid {i} dy']
 
