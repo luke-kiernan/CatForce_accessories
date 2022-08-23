@@ -82,8 +82,8 @@ def GetMinRect(rectList):
     g.strink()
     return g.getselrect()
 
-minRowGap = 5
-minEntryGap = 5
+minRowGap = 4
+minEntryGap = 4
 
 # list of list of rectangle lists
 # each list is the entries in 1 row.
@@ -95,47 +95,32 @@ rowStartY = yMin
 lastNonemptyRow = yMin
 streakOfEmptyRows = 0
 
-# figure out spacing, break up rle into rows and entries in each row
-# need to include minRowGap entra empty rows at the end
-# to trigger processing of final row.
-while(y < yMin + h + minRowGap):
-    #g.warn(f'looking for gap that marks end of row that starts at {rowStartY}')
-    while(streakOfEmptyRows < minRowGap and y < yMin + h + minRowGap):
-        if len(g.getcells([xMin,y,w,1])) > 1:
-            streakOfEmptyRows = 0
-            lastNonemptyRow = y
-        else:
-            streakOfEmptyRows += 1
-        y += 1
-    #g.warn('found a gap that markes end of row')
-    rowHeight = lastNonemptyRow-rowStartY+1
+def SplitIntoBlocksByRepeatedZeros(stringOfZerosAndOnes, howManyZeros):
+    blocks = []
+    blockStart = stringOfZerosAndOnes.find('1')
+    blockEnd = stringOfZerosAndOnes.find(howManyZeros*'0', blockStart)
+    while(blockEnd != -1):
+        blocks.append((blockStart, blockEnd))
+        blockStart = stringOfZerosAndOnes.find('1', blockEnd)
+        blockEnd = stringOfZerosAndOnes.find(howManyZeros*'0', blockStart)
+    if blockStart != -1:
+        blocks.append((blockStart, len(stringOfZerosAndOnes)-1))
+    return blocks
 
-    x = xMin
-    entryStartX = xMin
-    lastNonemptyCol = xMin
-    streakOfEmptyCols = 0
+# figure out spacing, break up rle into rows and entries in each row
+rowsNonempty = ''
+for y in range(yMin, yMin+h+1):
+    rowsNonempty += '1' if len(g.getcells([xMin,y,w,1])) > 1 else '0' 
+for rowBlock in SplitIntoBlocksByRepeatedZeros(rowsNonempty, minRowGap):
     rectanglesInRow.append([])
-    while(len(g.getcells([x,rowStartY,1,rowHeight])) <= 1):
-        x += 1
-    while ( x < xMin + w + minEntryGap):
-        while(streakOfEmptyCols < minEntryGap and  x < xMin + w + minEntryGap):
-            if len(g.getcells([x,rowStartY,1,rowHeight])) > 1:
-                streakOfEmptyCols = 0
-                lastNonemptyCol = x
-            else:
-                streakOfEmptyCols += 1
-            x += 1
-        rectanglesInRow[-1].append([entryStartX, rowStartY, 
-                        lastNonemptyCol-entryStartX+1, rowHeight ])
-        #g.warn(f'added entry {str([entryStartX, rowStartY, rowHeight, lastNonemptyCol-entryStartX+1 ])})')
-        streakOfEmptyCols = 0
-        while(len(g.getcells([x,rowStartY,1,rowHeight])) <= 1 and  x < xMin + w + minEntryGap):
-            x += 1
-        entryStartX = x
-    streakOfEmptyRows = 0
-    while(len(g.getcells([xMin,y,w,1])) <= 1 and y < yMin + h + minRowGap):
-        y += 1
-    rowStartY = y
+    rowHeight = rowBlock[1]-rowBlock[0]+1
+    rowStartY = yMin+rowBlock[0]
+    colsNonempty = ''
+    for x in range(xMin, xMin+w+1):
+        colsNonempty += '1' if len(g.getcells([x,rowStartY,1,rowHeight])) > 1 else '0' 
+    for colBlock in SplitIntoBlocksByRepeatedZeros(colsNonempty, minEntryGap):
+        rectanglesInRow[-1].append([xMin+colBlock[0], rowStartY, colBlock[1]-colBlock[0]+1, rowHeight])
+
 # done figuring out spacing
 maxForbidden = 0
 allCSVRows = []
