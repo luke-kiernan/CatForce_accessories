@@ -9,7 +9,7 @@ These are scripts for generating CatForce input files. There are three main file
 Four scripts are included:
 - `csv_to_plaintext.py` example usage `python3 csv_to_plaintext.py input.csv [name] > output.txt`. If the optional `name` parameter is provided, then the catalysts are labeled with their name (from the csv) and period. Works for peridoic and stable. 
 - `plaintext_to_csv.py` example usage `python3 plaintext_to_csv.py input.txt output.csv`. Creates a column for name, but that must be entered by hand. Works for peridoic and stable. 
-- `csv_to_rle.py` Golly script. Columns are assumed to be: name, rle, absence, dx, dy, symmType, required, req dx, req dy, forbidden 1, forbid 1 dx, forbid 1 dy, forbidden 2, etc. in that order. Only works for stable catalysts.
+- `csv_to_rle.py` Golly script. Columns are assumed to be: name, rle, absence, dx, dy, symType, required, req dx, req dy, forbidden 1, forbid 1 dx, forbid 1 dy, forbidden 2, etc. in that order. Works for peridoic and stable. 
 - `rle_to_csv.py` Golly script. Columns for name, absence, period, and symmetry type are created, but those fields must be entered by hand. Works for peridoic and stable: just delete the period column for stable. Make sure to include at least 5 cells of empty space between rows, and between patterns within each row.
 
 **Additional Catalyst Lists**
@@ -29,10 +29,10 @@ a specific subpattern occurs.
 
 Example usage `python3 categorize_by_match_multi.py [rleToMatch] [start]-[end] [matchType] results1.rle...resultsN.rle`.
 
-rleToMatch: an rle string, like `3o$2bo$3o!`. (Rmemeber to escape the dollar signs or enclose in single quotes.)
-start-end: which generations to look for the pattern.
-matchType: options are `same` (look for it in the same orientation and location as generation 0), `([x],[y])` (look for it in a fixed spot, same orientation as provided). If omitted, the first match in any location or orientation is used.
-Results RLE files: all the categories from these results files will be combined into one RLE, on the basis
+- rleToMatch: an rle string, like `3o$2bo$3o!`. (Rmemeber to escape the dollar signs or enclose in single quotes.)
+- start-end: which generations to look for the pattern.
+- matchType: options are `same` (look for it in the same orientation and location as generation 0), `([x],[y])` (look for it in a fixed spot, same orientation as provided). If omitted, the first match in any location or orientation is used.
+- RLE files: all the categories from these results files will be combined into one RLE, on the basis
 of in which generation a match is found. (If no match is found, the pattern is omitted.)
 
 `categorize_flippers_multi.py`: a version of `categorize_by_match_multi.py` that also checks for flippers.
