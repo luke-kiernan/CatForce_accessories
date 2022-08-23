@@ -17,6 +17,7 @@ with open(sys.argv[1], 'r', newline='', encoding = 'utf-8') as f:
                     print(f"\n# ============ period {data['period']} ============")
                 print(f"# ==={data['name']}===")
             stableInterval = data['stable'] if 'stable' in keys else data['absence']
+            symChar = data['symType'] if 'symType' in keys else data['symmetry']
             print(f"cat {data['rle']} {stableInterval} {data['dx']} {data['dy']} {data['symType']}", end = '')
             if 'required' in keys or 'req rle' in keys:
                 reqRLE = data['required'] if 'required' in keys else data['req rle']

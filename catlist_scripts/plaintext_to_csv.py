@@ -48,7 +48,7 @@ for row in csvEntries:
     while(len(row) < 6*6*maxForbidden):
         row.append('')
 
-headerList = ['name', 'absence', 'rle', 'dx', 'dy', 'symmType']
+headerList = ['name', 'absence', 'rle', 'dx', 'dy', 'symType']
 if periodic:
     headerList.append('period')
 headerList +=['required', 'req dx', 'req dy']#, 'locus rle', 'locus x', 'locus y']
