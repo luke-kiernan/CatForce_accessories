@@ -1,5 +1,6 @@
 import golly as g
 import itertools
+import csv
 def AddPadding(cellList):
     if len(cellList) % 2 == 0:
         cellList.append(0)
@@ -36,31 +37,19 @@ def GetBoundingBox(cellList):
 file = g.opendialog("Catalyst file as CSV", "csv")
 g.new("catlist.rle")
 g.setrule("LifeHistory")
-with open(file, 'r') as f:
+with open(file, newline='') as csvfile:
+    reader = csv.DictReader(csvfile)
     firstRow = True
-    for line in f:
-    
-        # parse data
-        data = line.split(',')
-
-        # check for header row.
-        if len(data) >= 3 and not ('o' in data[2]):
-            continue
-
-        while(data[-1] == '' or data[-1] == '\n'):
-            data.pop()
-        assert(len(data) >= 5)
+    for data in reader:
 
         #name = data[0] unused
         #absenceInterval = data[1] unused
         #g.warn(data[2])
-        catalyst = ConvertToLifeHistory(g.parse(data[2]),1)
-        catPos = (int(data[3]), int(data[4]))
+        catalyst = ConvertToLifeHistory(g.parse(data['rle']),1)
+        catPos = (int(data['dx']), int(data['dy']))
         #sym = data[5] unused
-        required = ConvertToLifeHistory( [] if len(data) < 7 else g.parse(data[6]), 5)
-        reqPos = [0,0]
-        if len(data) >= 9 and data[7] != '' and data[8] != '':
-            reqPos = (int(data[7]), int(data[8]))
+        required = ConvertToLifeHistory( [] if data['required'] == '' else g.parse(data['required']), 4)
+        reqPos = [0,0] if data['required'] == '' else [int(data['req dx']), int(data['req dy'])]
         # locus = ConvertToLifeHistory([] if len(data) < 10 else g.parse(data[9]), 3)
         # locusPos = [0,0]
         # if len(data) >= 12 and data[10] != '' and data[11] != '':
@@ -78,13 +67,12 @@ with open(file, 'r') as f:
             firstRow = False
         else:
             curX = 0
-            forbidY0s = list(map(lambda x:int(x), data[9::3])) if len(data) >= 13 else [0]
+            forbidY0s = [0 if f'forbid {i} dy' not in data or data[f'forbid {i} dy'] == '' else int(data[f'forbid {i} dy']) for i in range(20)]
             uppermost = min(min(forbidY0s), catPos[1])
             curY = 10*((endOfLastY - uppermost + 12)//10)
 
-        # catalyst with required as state 5
-        g.putcells(catalyst, curX+catPos[0], curY+catPos[1])
         g.putcells(required, curX+reqPos[0], curY+reqPos[1])
+        g.putcells(catalyst, curX+catPos[0], curY+catPos[1], 1,0,0,1,"xor")
         [_,_, width, height] = GetBoundingBox(catalyst)
         endOfLastX = curX+catPos[0]+width
         endOfLastY = curY+catPos[1]+height
@@ -99,13 +87,14 @@ with open(file, 'r') as f:
         #    endOfLastX = curX+catPos[0]+width
         #    endOfLastY = max(endOfLastY, curY+catPos[1]+height)
 
-        # now display forbidden
-        for n in range(12, len(data),3):
-            forbidX, forbidY = int(data[n+1]), int(data[n+2])
+        # now display forbidden\
+        i = 1
+        while f'forbid {i} dx' in data and data[f'forbid {i} dx'] != '':
+            forbidX, forbidY = int(data[f'forbid {i} dx']), int(data[f'forbid {i} dy'])
             curX = 10*((endOfLastX - forbidX + 12) // 10)
-            forbidState = ConvertToLifeHistory(g.parse(data[n]), 1)
+            forbidState = ConvertToLifeHistory(g.parse(data[f'forbidden {i}']), 1)
             [_,_, width, height] = GetBoundingBox(forbidState)
             g.putcells(forbidState, curX+forbidX, curY+forbidY)
             endOfLastX = curX + forbidX + width
             endOfLastY = max(endOfLastY, curY+forbidY+height)
-
+            i += 1
