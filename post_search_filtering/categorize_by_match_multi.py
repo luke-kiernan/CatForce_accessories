@@ -37,30 +37,35 @@ def NumberToLifeState(n):
         xShift += widths[int(digit)]+kerningGap
     return numAsState
 
-def ChangeFirstCellToOn(rleString):
-    startCellData = rleString.index('rule = B3/S23\n') + len('rule = B3/S23\n')
-    ind =  startCellData
-    multiplicity = ''
-    while(rleString[ind].isnumeric()):
-        multiplicity += rleString[ind]
-        ind += 1
-    newMultiplicity = 0 if multiplicity == '' else str(int(multiplicity)-1)
-    if rleString[ind] == 'o':
-        return rleString, False
-    else:
-        firstCellOnRLE = rleString[:startCellData]+f'o{newMultiplicity}{rleString[ind]}'+rleString[ind+1:]
-        return firstCellOnRLE, True
+# this only fixes things split between the two sides. does not fix things entirely on the wrong side.
+def FixWraparound(catalysts, zoi):
+    
+    rightOld = catalysts[30:32, :]
+    rightNew = rightOld + (rightOld.shift(-64,0).convolve(zoi) & catalysts).shift(64, 0)
+    while (rightNew > rightOld):
+        rightOld = rightNew.__copy__()
+        rightNew = rightOld + (rightOld.shift(-64,0).convolve(zoi) & catalysts).shift(64, 0)
+    leftOld = catalysts[-32:-30, :]
+    leftNew = leftOld + (leftOld.shift(64,0).convolve(zoi) & catalysts).shift(-64, 0)
+    while (leftNew > leftOld):
+        leftOld = leftNew.__copy__()
+        leftNew = leftNew + (leftOld.shift(64,0).convolve(zoi) & catalysts).shift(-64, 0)
 
-# work in progress
-def FixWraparound(result, upperLeftCorner):
-    normalizedResult = result.shift(*upperLeftCorner)
-    # method: look for pairs of cells in first col, last col that ought to be adjacent.
-    # if so, we take connected components of each, and assume that the bigger connected
-    # component is the one the "right side" and copy-paste over the other one.
-    firstCol = normalizedResult[0, :]
-    lastCol = normalizedResult[63, :]
+    bottomOld = catalysts[:,30:32]
+    bottomNew = bottomOld + (bottomOld.shift(0,-64).convolve(zoi) & catalysts).shift(0, 64)
+    while (bottomNew > bottomOld):
+        bottomOld = bottomNew.__copy__()
+        bottomNew = bottomNew + (bottomOld.shift(0,-64).convolve(zoi) & catalysts).shift(0, 64)
+    topOld = catalysts[:,-32:-30]
+    topNew = topOld + (topOld.shift(0,64).convolve(zoi) & catalysts).shift(0, -64)
+    while (topNew > topOld):
+        topOld = topNew.__copy__()
+        topNew = topOld + (topOld.shift(0,64).convolve(zoi) & catalysts).shift(0, -64)
 
-def AddMatchesToDict(matchGenToYRowAndArgIndex, argIndex,  genZeroResults, patToMatchRLE, genRange, location):
+    catalysts += topNew+bottomNew+rightNew+leftNew
+
+
+def AddMatchesToDict(matchGenToYRowAndArgIndex, argIndex,  genZeroResults, patToMatchRLE, genRange, location, filename):
 
 
     # do a bit of prep for pattern matching.
@@ -107,7 +112,7 @@ def AddMatchesToDict(matchGenToYRowAndArgIndex, argIndex,  genZeroResults, patTo
                     deadToMatch = orientedDeadCells[i]
                     relLocation = matches.firstcell
                     break
-                assert(i != 7), 'Could not find match'
+                assert(i != 7), f'Could not find match for {filename}'
         elif type(location) is tuple:
             relLocation = (32+location[0], 32+location[1])
             aliveToMatch = orientedPats[0]
@@ -161,42 +166,32 @@ if __name__ == '__main__':
         with open(sys.argv[argIndex], 'r') as f:
             for line in f:
                 resultsRLE += line
+        genZeroResults = lt.pattern(resultsRLE)
+        genZeroResults[-4:-2, -4:-2] = 1 # i seem to run into spacing issues when
+        # the top left most result doesn't have the top leftmost cell. so put a block
+        # in a spot that doesn't matter, so that this is the case.
 
-        # manual edit to RLE it so lifelib doesn't automatically shift pattern.
-        rleWithFirstCellOn, changeBack = ChangeFirstCellToOn(resultsRLE)
-        # correct for extended rle
-        genZeroResults = lt.pattern(rleWithFirstCellOn)
-        shift = (0,0)
-        for line in resultsRLE.split('\n'):
-            if line.startswith('#CXRLE Pos='):
-                shiftData  = line[line.index('=')+1:].split(',')
-                shift = (int(shiftData[0]), int(shiftData[1]) )
-                genZeroResults = genZeroResults.shift(*shift)
-                break
-            if line.endswith('rule = B3/S23'):
-                break
-
-        # undo change from manual edit and add block as a better solution
-        genZeroResults[-4:-2, -4:-2] = 1
-        if changeBack: 
-            genZeroResults[shift[0], shift[1]] = 0
-            assert(genZeroResults[shift[0], shift[1]] == 0)
+        # not sure if this is needed.
+        #for line in resultsRLE.split('\n'):
+        #    if line.startswith('#CXRLE Pos='):
+        #        genZeroResults = genZeroResults.shift(*shift)
 
         genZeroResultsAll.append(genZeroResults)
 
-        AddMatchesToDict(matchGenToYRowAndArgIndex, argIndex, genZeroResults, patToMatchRLE, (startGen, endGen), location)
+        AddMatchesToDict(matchGenToYRowAndArgIndex, argIndex, genZeroResults, patToMatchRLE, (startGen, endGen), location,sys.argv[argIndex])
 
     sortedResults = lt.pattern('')
     sortedKeys = sorted(list(matchGenToYRowAndArgIndex.keys()))
     yNew = 0
     for gen in sortedKeys:
         sortedResults += NumberToLifeState(gen).shift(-50, yNew+32)
-        xNew = 0
+        xEndOfLast = -25
         for (argIndex, y) in matchGenToYRowAndArgIndex[gen]:
             rightPat = genZeroResultsAll[argIndex -4]
             categoryResults = rightPat[0:rightPat.bounding_box[2], y:(y+64)]
-            sortedResults += categoryResults.shift(xNew, yNew-y)
-            xNew += 100*ceil(categoryResults.bounding_box[2]/100)
+            xStartNextResult = 100*int(ceil((xEndOfLast+20)//100))
+            sortedResults += categoryResults.shift(xStartNextResult, yNew-y)
+            xEndOfLast = xStartNextResult + rightPat.bounding_box[2]
         yNew += 100
     
     print(sortedResults.rle_string())
