@@ -48,30 +48,40 @@ def FindActivePattern(firstResult, rleToMatch):
 
 def Nontrivial(result, activeRegion, lastGen):
     '''Returns True if the different images of the active region interact, False if they do not.'''
+    # TODO: what if their halos interact, but the active cells do not?
+    # fix by splitting up, and making sure that the two pieces really do evolve the same
+    # apart as together?
+    workspace = result.__copy__()
+
+    smallZOI = lt.pattern('')
+    smallZOI[-1:2, -1:2] = 1
+
     comps = result.components()
-    workspace = result[3]
-    gen = 0
-    activeRegionComps = [i for i in range(len(comps)) if (comps[i]&activeRegion).nonempty()]
-    increment = 3
-    while(len(set(activeRegionComps)) > 1 and gen < lastGen):
+    
+    normalZOI = lt.pattern('x = 5, y = 5, rule = B3/S23\nb3o$5o$5o$5o$b3o!').shift(-2,-2)
+    activeRegionIndices = [i for i in range(len(comps)) if (activeRegion & comps[i]).nonempty()]
+    for _ in range(lastGen):
         toDelete = set()
         for i in range(len(comps)):
-            for j in range(i+1, len(comps)):
-                if workspace.component_containing(comps[i]) == workspace.component_containing(comps[j]) \
-                        and workspace.component_containing(comps[i]).nonempty():
-                    comps[i] += comps[j]
-                    comps[j] += comps[i]
-                    toDelete.add(j)
-                    if j in activeRegionComps:
-                        activeRegionComps[activeRegionComps.index(j)] = i
-                        
-        for ind in sorted(list(toDelete), reverse=True):
-            del comps[ind]
-        comps = [comp[increment] for comp in comps]
-        workspace = workspace[increment]
-        gen += increment
-    if len(set(activeRegionComps)) == 1:
-        return True
+            haloOnly = comps[i].convolve(normalZOI)-comps[i]
+            overlapsWith = workspace.component_containing(haloOnly)
+            if overlapsWith.nonempty() and (overlapsWith[1]+comps[i][1]) != (overlapsWith+comps[i])[1]:
+                for j in range(i+1,len(comps)):
+                        if (overlapsWith & comps[j]).nonempty():
+                            comps[j] += comps[i]
+                            comps[i] += comps[j]
+                            toDelete.add(j)
+                            if j in activeRegionIndices:
+                                activeRegionIndices[activeRegionIndices.index(j)] = i
+                                if len(set(activeRegionIndices)) == 1:
+                                    return True 
+        for i in sorted(list(toDelete), reverse=True):
+            del comps[i]
+        workspace = workspace[1]
+        for comp in comps:
+            comp = comp[1]
+            if comp.empty():
+                del comp
     return False
 
 def WrapEdges(result):
@@ -130,7 +140,7 @@ if __name__ == '__main__':
     bigZOI = lt.pattern('')
     bigZOI[-3:4, -3:4] = 1
     
-    maxNumberToTakeFromCategory = 10
+    maxNumberToTakeFromCategory = 100
 
     for argIndex in range(startAt, len(sys.argv)):
         resultsRLE = ''
@@ -180,9 +190,10 @@ if __name__ == '__main__':
                 categoryBreakdown.update(['could not parse'])
                 offending_files.add(sys.argv[argIndex])
                 continue # all results in category were "bad"
-            if not Nontrivial(testResult,activePat,g):
-                categoryBreakdown.update(['trivial'])
-                continue
+            # nontrivial currently doesn't seem to work correctly.
+            #if not Nontrivial(testResult,activePat,g):
+            #    categoryBreakdown.update(['trivial'])
+            #    continue
             if op != "identity":
                 categoryBreakdown.update(['flipped'])
             else:
@@ -276,7 +287,7 @@ if __name__ == '__main__':
                         sys.stderr.write(f"problem in {sys.argv[argIndex]} near ({x},{y})"+os.linesep)
                         sys.stderr.write(kthGenActivePart.rle_string())
                         sys.stderr.flush()
-                    assert(k >= 1)
+                        continue
                     score = k - 1
                 scoredCategoryResults.append((score,result.__copy__()))
             if len(scoredCategoryResults) > 0:
