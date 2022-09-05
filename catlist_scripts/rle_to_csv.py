@@ -6,10 +6,11 @@ import csv
 from itertools import product
 
 g.note('Program for producing lists for periodic CatForce.')
-g.note('1 catalyst per row. \n First entry: sparker/catalyst, with state 3/4/5 for required cells. \n Rest are forbidden.')
+g.note('1 catalyst per row. \n First entry: sparker/catalyst, with state 4/5 for required cells. \n Rest are forbidden.')
 g.note('Include at least 5 cells between rows, and 5 cells between entries in the in the row.\n '+
         'Patterns don\'t need to exactly line up in each row, but they shouldn\'t be off by more than 7.')
-g.note('Center is done automatically, but period, symmetry, and max absence time must be entered by hand.')
+g.note('In the first entry, draw a single white cell at the spark--the catalyst will be centered there.')
+g.note('Period, symmetry, and max absence time must be entered by hand.')
 # states 3/4/5 = required (matching) cells
 
 def TrimCellList(cellList):
@@ -139,18 +140,27 @@ for entryBboxes in rectanglesInRow:
     w, h = max(patCells[::2])-x0Pat+1,max(patCells[1::2])-y0Pat+1
 
 
-    center = (ceil(x0Pat+w/2)//1, ceil(y0Pat+h/2)//1)
+    # center = (ceil(x0Pat+w/2)//1, ceil(y0Pat+h/2)//1)
     # catForce universe [post-(dx,dy)] catalyst
     #          = golly universe catalyst, shifted by -center.
+
+    # improvement: white = center.
+    
+    if len(ExtractState(entryBboxes[0], [3])) == 1:
+        center = ExtractState(entryBboxes[0], [3])[0]
+    else:
+        center = (ceil(x0Pat+w/2)//1, ceil(y0Pat+h/2)//1)
+
 
     dataDict['rle'] = stateRLE
     dataDict['dx'] = -(center[0]-x0Pat)
     dataDict['dy'] = -(center[1]-y0Pat)
 
-    
-    reqCells = LifeHistoryToLife(g.getcells(entryBboxes[0]), [3,4,5])
+    reqCells = LifeHistoryToLife(g.getcells(entryBboxes[0]), [4,5])
+    # reqCells = LifeHistoryToLife(g.getcells(entryBboxes[0]), [3,4,5])
     if len(reqCells) >= 1:
-        dataDict['required'] = LifeHistoryToRLE(g.getcells(entryBboxes[0]), [3,4,5])
+        #dataDict['required'] = LifeHistoryToRLE(g.getcells(entryBboxes[0]), [3,4,5])
+        dataDict['required'] = LifeHistoryToRLE(g.getcells(entryBboxes[0]), [4,5])
         x0Req, y0Req = min(reqCells[::2]), min(reqCells[1::2])
         dataDict['req dx'] = x0Req - center[0]
         dataDict['req dy'] = y0Req - center[1]
