@@ -6,7 +6,7 @@ import csv
 from itertools import product
 
 g.note('Program for producing lists for periodic CatForce.')
-g.note('1 catalyst per row. \n First entry: sparker/catalyst, with state 4/5 for required cells. \n Rest are forbidden.')
+g.note('1 catalyst per row. \n First entry: sparker/catalyst, with state 4/5 for required cells. \n Optionally: locus as second entry, with state 4/5 for locus. \n Rest are forbidden, only state 3 cells.')
 g.note('Include at least 5 cells between rows, and 5 cells between entries in the in the row.\n '+
         'Patterns don\'t need to exactly line up in each row, but they shouldn\'t be off by more than 7.')
 g.note('In the first entry, draw a single white cell at the spark--the catalyst will be centered there.')
@@ -164,7 +164,11 @@ for entryBboxes in rectanglesInRow:
         x0Req, y0Req = min(reqCells[::2]), min(reqCells[1::2])
         dataDict['req dx'] = x0Req - center[0]
         dataDict['req dy'] = y0Req - center[1]
-    
+    else:
+        dataDict['required'] = ''
+        dataDict['req dx'] = ''
+        dataDict['req dy'] = ''
+
     # want (dxReq, dyReq) such that
     # default position required shifted by (dxReq, dyReq)
     #  equals golly universe required, shifted by -center.
@@ -177,8 +181,19 @@ for entryBboxes in rectanglesInRow:
     dataDict['period'] = ''
 
     maxForbidden = max(len(entryBboxes) - 1, maxForbidden)
+    startAt = 1
+    if len(entryBboxes) > 1 and len(LifeHistoryToLife(g.getcells(entryBboxes[1]), [4,5])) >= 1:
+        startAt = 2
+        dataDict['locus'] = LifeHistoryToRLE(g.getcells(entryBboxes[1]), [4,5])
+        x0Locus, y0Locus = min(reqCells[::2]), min(reqCells[1::2])
+        dataDict['locus dx'] = x0Locus - center[0]
+        dataDict['locus dy'] = y0Locus - center[1]
+    else:
+        dataDict['locus'] = ''
+        dataDict['locus dx'] = ''
+        dataDict['locus dy'] = ''
 
-    for i in range(1, len(entryBboxes)):
+    for i in range(startAt, len(entryBboxes)):
         
         dataDict[f'forbidden {i}'] = LifeHistoryToRLE(g.getcells(entryBboxes[i]))
 

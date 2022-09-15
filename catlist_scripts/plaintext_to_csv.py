@@ -29,7 +29,7 @@ with open(sys.argv[1]) as f:
             if 'period' in data:
                 csvEntries[-1].append(data[data.index('period')+1])
                 periodic = True
-            for keyword in ["required"]: #, "locus"]:
+            for keyword in ["required", "locus"]:
                 if keyword in data:
                     i = data.index(keyword)
                     CheckFormatting(line, data[i+1:i+4], keyword)
@@ -44,16 +44,20 @@ with open(sys.argv[1]) as f:
                     csvEntries[-1] += data[i+1:i+4]
                     i += 4
             maxForbidden = max(numForbidden, maxForbidden)
-for row in csvEntries:
-    while(len(row) < 6*6*maxForbidden):
-        row.append('')
+
 
 headerList = ['name', 'absence', 'rle', 'dx', 'dy', 'symType']
 if periodic:
     headerList.append('period')
-headerList +=['required', 'req dx', 'req dy']#, 'locus rle', 'locus x', 'locus y']
+headerList +=['required', 'req dx', 'req dy', 'locus', 'locus dx', 'locus dy']
+
+for row in csvEntries:
+    while(len(row) < len(headerList)+3*maxForbidden):
+        row.append('')
+
 for i in range(1,maxForbidden+1):
     headerList += [f'forbidden {i}', f'forbid {i} dx', f'forbid {i} dy']
+
 with open(sys.argv[2], 'w') as file:
     dw = csv.writer(file, delimiter=',')
     dw.writerow(headerList)
