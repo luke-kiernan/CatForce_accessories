@@ -51,9 +51,10 @@ with open(file, newline='') as csvfile:
         required = ConvertToLifeHistory( [] if data['required'] == '' else g.parse(data['required']), 4)
         reqPos = [0,0] if data['required'] == '' else [int(data['req dx']), int(data['req dy'])]
         if 'locus' not in data or 'o' not in data['locus']:
-            locus = []
+            locus = ConvertToLifeHistory([], 1)
             locusPos = [0,0]
         else:
+            g.warn(data['locus'])
             locus = ConvertToLifeHistory(g.parse(data['locus']), 4)
             locusPos = [int(data['locus dx']), int(data['locus dy'])]
         # if len(data) >= 12 and data[10] != '' and data[11] != '':
@@ -72,7 +73,8 @@ with open(file, newline='') as csvfile:
         else:
             curX = 0
             forbidY0s = [0 if f'forbid {i} dy' not in data or data[f'forbid {i} dy'] == '' else int(data[f'forbid {i} dy']) for i in range(20)]
-            uppermost = min(min(forbidY0s), catPos[1])
+            locusY0 = 0 if 'locus dy' not in data or data['locus dy'] == '' else int(data['locus dy'])
+            uppermost = min(min(forbidY0s), catPos[1], locusY0)
             curY = 10*((endOfLastY - uppermost + 12)//10)
 
         g.putcells(required, curX+reqPos[0], curY+reqPos[1])
@@ -85,9 +87,11 @@ with open(file, newline='') as csvfile:
         # catalyst with locus as state 4/5 [if there is locus]
         if len(locus) > 1:
             # need extra room, due to shifting catPos[0] to the left
-            curX = 10*((endOfLastX - catPos[0] + 12) // 10) 
+            curX = 10*((endOfLastX - catPos[0] + 12) // 10)
+            g.warn(str(locus))
+
+            g.putcells(locus, curX+locusPos[0], curY+locusPos[1])
             g.putcells(catalyst, curX+catPos[0], curY+catPos[1], 1,0,0,1,"xor")
-            g.putcells(locus, curX+locusPos[0], curY+locusPos[1], 1,0,0,1,"xor")
             endOfLastX = curX+catPos[0]+width
             endOfLastY = max(endOfLastY, curY+catPos[1]+height)
 

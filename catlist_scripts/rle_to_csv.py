@@ -179,53 +179,60 @@ for entryBboxes in rectanglesInRow:
     patCoordsCentered = [tuple(patLifeCellsCentered[i:i+2]) for i in range(0, len(patLifeCellsCentered), 2)]
 
     dataDict['period'] = ''
-
-    maxForbidden = max(len(entryBboxes) - 1, maxForbidden)
     startAt = 1
-    if len(entryBboxes) > 1 and len(LifeHistoryToLife(g.getcells(entryBboxes[1]), [4,5])) >= 1:
-        startAt = 2
-        dataDict['locus'] = LifeHistoryToRLE(g.getcells(entryBboxes[1]), [4,5])
-        x0Locus, y0Locus = min(reqCells[::2]), min(reqCells[1::2])
-        dataDict['locus dx'] = x0Locus - center[0]
-        dataDict['locus dy'] = y0Locus - center[1]
-    else:
+
+    for i in range(1, len(entryBboxes)):
+
+        if i == 1 and len(LifeHistoryToLife(g.getcells(entryBboxes[1]), [4,5])) >= 1:
+            relevantCells = LifeHistoryToLife(g.getcells(entryBboxes[1]), [4,5])
+            dataDict[f'locus'] = LifeHistoryToRLE(g.getcells(entryBboxes[i]), [4,5])
+            startAt = 2
+        else:
+            relevantCells = LifeHistoryToLife(g.getcells(entryBboxes[1]))
+            dataDict[f'forbidden {i-startAt+1}'] = LifeHistoryToRLE(g.getcells(entryBboxes[i]))
+
+        lifeCells = LifeHistoryToLife(g.getcells(entryBboxes[i]))
+        relevantX0, relevantY0 = min(relevantCells[::2]), min(relevantCells[1::2])
+        lifeX0, lifeY0 = min(lifeCells[::2]), min(lifeCells[1::2])
+        lifeCellsWRelevantAtOrigin = copy(lifeCells)
+        for j in range(0,len(lifeCellsWRelevantAtOrigin), 2):
+            lifeCellsWRelevantAtOrigin[j] -= relevantX0
+            lifeCellsWRelevantAtOrigin[j+1] -= relevantY0
+        # upper rigth corner of life cells is now at (lifeX0 - relevantX0, lifeY0 - relevantY0)
+        translations = sorted(list(product(range(-7, 8), range(-7, 8))), key = lambda x : abs(x[0])+abs(x[1]))
+        for transl in translations:
+            shiftedLifeCoords = [(lifeCellsWRelevantAtOrigin[i]+transl[0]+dataDict['dx']+(relevantX0 - lifeX0),
+                                            lifeCellsWRelevantAtOrigin[i+1]+transl[1]+dataDict['dy']+(relevantY0-lifeY0))
+                                                for i in range(0,len(lifeCellsWRelevantAtOrigin), 2)]
+            if all([coord in  shiftedLifeCoords for coord in patCoordsCentered]):
+                # correct shift the line up the live cells is: transl[0]+dataDict['dx'], transl[1]+dataDict['dx']
+                # however, upper right corner of live cells may be different than upper right corner of locus cells
+                if i == 1 and len(LifeHistoryToLife(g.getcells(entryBboxes[1]), [4,5])) >= 1:
+                    dataDict['locus dx'] =transl[0]+dataDict['dx'] + (relevantX0 - lifeX0)
+                    dataDict['locus dy'] =transl[1]+dataDict['dy'] + (relevantY0 - lifeY0)
+                else:
+                    dataDict[f'forbid {i-startAt+1} dx'] = transl[0]+dataDict['dx'] + (relevantX0 - lifeX0)
+                    dataDict[f'forbid {i-startAt+1} dy'] = transl[1]+dataDict['dy'] + (relevantY0 - lifeY0)
+                break
+
+    if 'locus' not in dataDict:
         dataDict['locus'] = ''
         dataDict['locus dx'] = ''
         dataDict['locus dy'] = ''
-
-    for i in range(startAt, len(entryBboxes)):
-        
-        dataDict[f'forbidden {i}'] = LifeHistoryToRLE(g.getcells(entryBboxes[i]))
-
-        forbiddenCells = g.getcells(entryBboxes[i])
-        forbiddenLifeCells = LifeHistoryToLife(forbiddenCells)
-        forbidX0, forbidY0 = min(forbiddenLifeCells[::2]), min(forbiddenLifeCells[1::2])
-        forbiddenLifeCellsAtOrigin = copy(forbiddenLifeCells)
-        for j in range(0,len(forbiddenLifeCellsAtOrigin), 2):
-            forbiddenLifeCellsAtOrigin[j] -= forbidX0
-            forbiddenLifeCellsAtOrigin[j+1] -= forbidY0
-        
-
-        translations = sorted(list(product(range(-7, 8), range(-7, 8))), key = lambda x : abs(x[0])+abs(x[1]))
-        for transl in translations:
-            shiftedForbiddenLifeCoords = [(forbiddenLifeCellsAtOrigin[i]+transl[0]+dataDict['dx'],
-                                            forbiddenLifeCellsAtOrigin[i+1]+transl[1]+dataDict['dy'])
-                                                for i in range(0,len(forbiddenLifeCellsAtOrigin), 2)]
-            if all([coord in shiftedForbiddenLifeCoords for coord in patCoordsCentered]):
-                dataDict[f'forbid {i} dx'] = transl[0]+dataDict['dx']
-                dataDict[f'forbid {i} dy'] = transl[1]+dataDict['dy']
-                break
+    
+    maxForbidden = max(len(entryBboxes) - startAt, maxForbidden)
     
     dataDict['name'] = f'cat {catNumber}'
     dataDict['symType'] = ''
     dataDict['absence'] = ''
+
     catNumber += 1
 
     allCSVRows.append(copy(dataDict))
 
 
         
-keys = ['name', 'absence', 'rle', 'dx', 'dy', 'symType', 'period', 'required', 'req dx', 'req dy']
+keys = ['name', 'absence', 'rle', 'dx', 'dy', 'symType', 'period', 'required', 'req dx', 'req dy', 'locus', 'locus dx', 'locus dy']
 for i in range(1, maxForbidden+1):
     keys += [f'forbidden {i}', f'forbid {i} dx', f'forbid {i} dy']
 

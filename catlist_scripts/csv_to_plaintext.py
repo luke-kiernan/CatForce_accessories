@@ -27,7 +27,7 @@ with open(sys.argv[1], 'r', newline='', encoding = 'utf-8') as f:
                 if reqRLE != '':
                     print(f" required {reqRLE} {data['req dx']} {data['req dy']}", end = '')
             if 'locus' in keys and 'locus' in data and 'o' in data['locus']:
-                print(f"locus {data['locus']} {data['locus dx']} {data['locus dy']}", end = '')
+                print(f" locus {data['locus']} {data['locus dx']} {data['locus dy']}", end = '')
             n = 1
             while f'forbidden {n}' in keys and data[f'forbidden {n}'] != '':
                 print(f" forbidden {data[f'forbidden {n}']} {data[f'forbid {n} dx']} {data[f'forbid {n} dy']}", end = '')
