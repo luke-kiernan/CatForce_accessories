@@ -1,4 +1,4 @@
-name,absence,rle,dx,dy,symType,period,required,req dx,req dy
-rich's p16,10,4bo5bo$4bo5bo$2b4o3b4o$b2o9b2o$3o2b2ob2o2b3o$2o3b2ob2o3b2o$b3obo3bob3o$2b2o7b2o$3b3o3b3o$5b2ob2o$4bobobobo$5bo3bo!,-4,0,/,16,3b9o$3b9o$2b11o$15o$15o$15o$15o$2b11o$3b9o$3b9o!,-4,2
-charity's p16,10,4bobo2$3bo$10b2o$bo2b3o3b2o$obo$bo$6bo$6b2o$5b2obo$4bo2b3o$3bobobo$2bobobo$3o2bo$bob2o$2b2o$3bo!,-6,0,*,16,4b10o$b13o$14o$14o$11o$b10o$2b9o$2b10o$2b10o$2b10o$11o$9o$8o$b6o$2b4o$3b3o!,-7,2
-68P16,10,3b2o5b2o3b2o$bo4bo3b2o3bo2bo$6bo$o6bo5bo5bo$2o4bo5bo6bo$6bo2b2o2bo$3bobo3b2o3b2ob2o$4bo11bo$2o$2o3b2o6b2o$5b2o6b2o3b2o$18b2o$3bo11bo$b2ob2o3b2o3bobo$6bo2b2o2bo$o6bo5bo4b2o$o5bo5bo6bo$13bo$bo2bo3b2o3bo4bo$3b2o3b2o5b2o!,-3,0,|,16,10b9o$10b9o$7b12o$19o$19o$19o$19o$20o$20o$20o$22o$22o$2b20o$2b20o$2b20o$3b19o$3b19o$3b19o$3b19o$3b12o$3b9o$3b9o!,-4,-1
+name,absence,rle,dx,dy,symType,period,required,req dx,req dy,locus,locus dx,locus dy
+rich's p16,10,4bo5bo$4bo5bo$2b4o3b4o$b2o9b2o$3o2b2ob2o2b3o$2o3b2ob2o3b2o$b3obo3bob3o$2b2o7b2o$3b3o3b3o$5b2ob2o$4bobobobo$5bo3bo!,-4,0,/,16,3b9o$3b9o$2b11o$15o$15o$15o$15o$2b11o$3b9o$3b9o!,-4,2,,,
+charity's p16,10,4bobo2$3bo$10b2o$bo2b3o3b2o$obo$bo$6bo$6b2o$5b2obo$4bo2b3o$3bobobo$2bobobo$3o2bo$bob2o$2b2o$3bo!,-6,0,*,16,4b10o$b13o$14o$14o$11o$b10o$2b9o$2b10o$2b10o$2b10o$11o$9o$8o$b6o$2b4o$3b3o!,-7,2,b3o$6o$6o!,-3,0
+68P16,10,3b2o5b2o3b2o$bo4bo3b2o3bo2bo$6bo$o6bo5bo5bo$2o4bo5bo6bo$6bo2b2o2bo$3bobo3b2o3b2ob2o$4bo11bo$2o$2o3b2o6b2o$5b2o6b2o3b2o$18b2o$3bo11bo$b2ob2o3b2o3bobo$6bo2b2o2bo$o6bo5bo4b2o$o5bo5bo6bo$13bo$bo2bo3b2o3bo4bo$3b2o3b2o5b2o!,-3,0,|,16,10b9o$10b9o$7b12o$19o$19o$19o$19o$20o$20o$20o$22o$22o$2b20o$2b20o$2b20o$3b19o$3b19o$3b19o$3b19o$3b12o$3b9o$3b9o!,-4,-1,3b2o$b4o13bo$18bo$18b2o$18b2o11$2o$2o$bo$bo13b4o$15b2o!,-3,0
