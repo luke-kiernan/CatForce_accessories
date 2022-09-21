@@ -142,7 +142,9 @@ if __name__ == '__main__':
     
     maxNumberToTakeFromCategory = 100
 
+    # sys.stderr.write(f"starting looping thru args at argument {repr(sys.argv[startAt])}\n")
     for argIndex in range(startAt, len(sys.argv)):
+        sys.stderr.write(f"processing file " + sys.argv[argIndex]+"\n")
         resultsRLE = ''
         with open(sys.argv[argIndex], 'r') as f:
             for line in f:
@@ -166,7 +168,9 @@ if __name__ == '__main__':
         periodic = catalysts == catalysts[1]
         orientedActive, orientedActiveDead = ComputeOrientationsAndDeadCells(activePat)
         activeDeadCells = orientedActiveDead[0]
+        # sys.stderr.write("done figuring out active pattern\n")
         for y in range(0, genZeroResults.bounding_box[1]+genZeroResults.bounding_box[3], 100):
+
             scoredCategoryResults = []
 
             # figure out if/how it flips.
@@ -175,6 +179,7 @@ if __name__ == '__main__':
             g = -1
             testResult = category[x0:(x0+64), -32:32].shift(-x0-32, 0)
             while(g == -1 and testResult.nonempty()):
+                # sys.stderr.write(f"trying the result at x={x0}\n")
                 g, op, translation = CheckHowFlips(testResult, (startGen, endGen), orientedActive, orientedActiveDead)
                 if g == -1:
                     # attempt to fix wrap-around issues.
@@ -185,7 +190,11 @@ if __name__ == '__main__':
                     # no luck. try the next result in the category, maybe it's better.
                     x0 += 100
                     testResult = category[x0:(x0+64), -32:32].shift(-x0-32, 0)
-            
+                if x0 > 5*100:
+                    # so we don't spend forever if things don't seem to be working.
+                    testResult = lt.pattern('')
+
+            #sys.stderr.write("figured out where region reappear\s\n")
             if testResult.empty():
                 categoryBreakdown.update(['could not parse'])
                 offending_files.add(sys.argv[argIndex])
