@@ -117,7 +117,6 @@ do
         mkdir "$name"
     fi
     rotatedObj=$( python3 generateOrientedRLEs.py "$rle" )
-    
     IFS=$'\n' read -d '' -ra rotatedRLEs < <(printf '%s\0' "$rotatedObj") # found via stack overflow, split up by \n.
     # rotatedRLEs = all orientations of the object [as a set: ie it detects redundancy, only 1 for honeyfarm, 4 for pi, etc]
 
@@ -158,7 +157,7 @@ do
         do
             orientedRLE="${rotatedRLEs[$orientNum]}"
 
-            dims=$( python3 getWidthHeight.py $rle )
+            dims=$( python3 getWidthHeight.py $orientedRLE )
 
             height=${dims#*,}
             width=${dims%,*}
