@@ -87,20 +87,24 @@ def AddMatchesToDict(matchGenToYRowAndArgIndex, argIndex,  genZeroResults, patTo
     if location is None:
         startGenResults = genZeroResults[genRange[0]]
         for y in range(0, genZeroResults.bounding_box[3], 100):
-            candidateState = startGenResults[0:64, y:(y+64)]
-            done = False
-            for g in range(genRange[0], genRange[1]+1):
-                for i in range(8):
-                    matches = candidateState.match(orientedPats[i], dead = orientedDeadCells[i])
-                    if(matches.nonempty()):
-                        if g in matchGenToYRowAndArgIndex:
-                            matchGenToYRowAndArgIndex[g].append((argIndex, y))
-                        elif g not in matchGenToYRowAndArgIndex:
-                            matchGenToYRowAndArgIndex[g] = [(argIndex, y)]
-                        done = True
-                        break
+            for tryNum in range(2):
+                candidateState = startGenResults[0:64, y:(y+64)]
+                if tryNum == 2: FixWraparound(candidateState)
+                done = False
+                for g in range(genRange[0], genRange[1]+1):
+                    for i in range(8):
+                        matches = candidateState.match(orientedPats[i], dead = orientedDeadCells[i])
+                        if(matches.nonempty()):
+                            if g in matchGenToYRowAndArgIndex:
+                                matchGenToYRowAndArgIndex[g].append((argIndex, y))
+                            elif g not in matchGenToYRowAndArgIndex:
+                                matchGenToYRowAndArgIndex[g] = [(argIndex, y)]
+                            done = True
+                            break
+                    if done: break
+                    candidateState = candidateState[1]
                 if done: break
-                candidateState = candidateState[1]
+
     else:
         if location == 'same':
             # figure out what to match where.
@@ -138,7 +142,6 @@ if __name__ == '__main__':
 
     assert(len(sys.argv) >= 4)
     # command line input: rleToMatch start-end [matchType] rleFilePath
-
     # read in everything
     patToMatchRLE = ''
     if sys.argv[1].endswith('.rle'):
@@ -153,15 +156,18 @@ if __name__ == '__main__':
     startGen, endGen = int(timingData[0]), int(timingData[1])
 
     location = None
+    startAt = 4
     if sys.argv[3][0] == '(' and sys.argv[3][-1] == ')':
         data = sys.argv[1:-1].split(',')
         location = [int(data[0]), int(data[1])]
     elif sys.argv[3] == 'same':
         location = 'same'
+    else:
+        startAt = 3
 
     matchGenToYRowAndArgIndex = {}
     genZeroResultsAll = []
-    for argIndex in range(4, len(sys.argv)):
+    for argIndex in range(startAt, len(sys.argv)):
         resultsRLE = ''
         with open(sys.argv[argIndex], 'r') as f:
             for line in f:
@@ -184,14 +190,14 @@ if __name__ == '__main__':
     sortedKeys = sorted(list(matchGenToYRowAndArgIndex.keys()))
     yNew = 0
     for gen in sortedKeys:
-        sortedResults += NumberToLifeState(gen).shift(-50, yNew+32)
+        sortedResults += NumberToLifeState(gen).shift(-200, yNew+32)
         xEndOfLast = -25
         for (argIndex, y) in matchGenToYRowAndArgIndex[gen]:
-            rightPat = genZeroResultsAll[argIndex -4]
+            rightPat = genZeroResultsAll[argIndex - startAt]
             categoryResults = rightPat[0:rightPat.bounding_box[2], y:(y+64)]
-            xStartNextResult = 100*int(ceil((xEndOfLast+20)//100))
+            xStartNextResult = 100*int(ceil((xEndOfLast+20)//100))+100
             sortedResults += categoryResults.shift(xStartNextResult, yNew-y)
-            xEndOfLast = xStartNextResult + rightPat.bounding_box[2]
+            xEndOfLast = xStartNextResult + categoryResults.bounding_box[2]
         yNew += 100
     
     print(sortedResults.rle_string())
