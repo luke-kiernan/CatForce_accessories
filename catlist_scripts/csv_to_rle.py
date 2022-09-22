@@ -54,7 +54,7 @@ with open(file, newline='') as csvfile:
             locus = ConvertToLifeHistory([], 1)
             locusPos = [0,0]
         else:
-            g.warn(data['locus'])
+            # g.warn(data['locus'])
             locus = ConvertToLifeHistory(g.parse(data['locus']), 4)
             locusPos = [int(data['locus dx']), int(data['locus dy'])]
         # if len(data) >= 12 and data[10] != '' and data[11] != '':
@@ -88,7 +88,7 @@ with open(file, newline='') as csvfile:
         if len(locus) > 1:
             # need extra room, due to shifting catPos[0] to the left
             curX = 10*((endOfLastX - catPos[0] + 12) // 10)
-            g.warn(str(locus))
+            # g.warn(str(locus))
 
             g.putcells(locus, curX+locusPos[0], curY+locusPos[1])
             g.putcells(catalyst, curX+catPos[0], curY+catPos[1], 1,0,0,1,"xor")
