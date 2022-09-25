@@ -6,12 +6,14 @@ import csv
 assert(len(sys.argv) == 3), "Requires 2 arguments: [catalyst plaintext file] [path to save catalyst csv file]"
 
 def CheckFormatting(line, subarray, entryType):
+    assert(len(subarray) == 3), f"Spacing issues for entry {entryType} in line: \n\t \'{line}\'"
     assert('o' in subarray[0]), f"RLE not found for entry {subarray[0]} in line: \n\t \'{line}\'"
     assert(subarray[1].lstrip('-').isnumeric() and subarray[2].lstrip('-').isnumeric()), f"x,y position not found for entry {entryType} in line: \n\t \'{line}\'"
 
 maxForbidden = 0
 csvEntries = []
 periodic = False
+keywordsSeen = set()
 with open(sys.argv[1]) as f:
     
     for line in f:
@@ -29,13 +31,14 @@ with open(sys.argv[1]) as f:
             if 'period' in data:
                 csvEntries[-1].append(data[data.index('period')+1])
                 periodic = True
-            for keyword in ["required", "locus"]:
+            for keyword in ["required", "antirequired", "locus"]:
                 if keyword in data:
+                    keywordsSeen.add(keyword)
                     i = data.index(keyword)
                     CheckFormatting(line, data[i+1:i+4], keyword)
                     csvEntries[-1] += data[i+1:i+4]
                 else:
-                    csvEntries[-1] += ['','','']  
+                    csvEntries[-1] += ['','','']
             numForbidden = 0
             for i in range(len(data)):
                 if data[i] == "forbidden":
@@ -49,7 +52,15 @@ with open(sys.argv[1]) as f:
 headerList = ['name', 'absence', 'rle', 'dx', 'dy', 'symType']
 if periodic:
     headerList.append('period')
-headerList +=['required', 'req dx', 'req dy', 'locus', 'locus dx', 'locus dy']
+keywordToHeadings={'required':['required', 'req dx', 'req dy'],
+                    'antirequired':['antirequired', 'antireq dx', 'antireq dy'],
+                    'locus':['locus', 'locus dx', 'locus dy'] }
+for keyword in keywordToHeadings:
+    headerList += keywordToHeadings[keyword]
+    if keyword not in keywordsSeen:
+        for row in csvEntries:
+            del row[headerList.index(keyword):(headerList.index(keyword)+3)]
+        del headerList[-3:-1]
 
 for row in csvEntries:
     while(len(row) < len(headerList)+3*maxForbidden):

@@ -57,6 +57,13 @@ with open(file, newline='') as csvfile:
             # g.warn(data['locus'])
             locus = ConvertToLifeHistory(g.parse(data['locus']), 4)
             locusPos = [int(data['locus dx']), int(data['locus dy'])]
+        if 'antirequired' not in data or 'o' not in data['antirequired']:
+            antirequired = ConvertToLifeHistory([], 4)
+            antirequiredPos = [0,0]
+        else:
+            # g.warn(data['locus'])
+            antirequired = ConvertToLifeHistory(g.parse(data['antirequired']), 4)
+            antirequiredPos = [int(data['antireq dx']), int(data['antireq dy'])]
         # if len(data) >= 12 and data[10] != '' and data[11] != '':
          #   locusPos = (int(data[10]), int(data[11]))
 
@@ -74,14 +81,21 @@ with open(file, newline='') as csvfile:
             curX = 0
             forbidY0s = [0 if f'forbid {i} dy' not in data or data[f'forbid {i} dy'] == '' else int(data[f'forbid {i} dy']) for i in range(20)]
             locusY0 = 0 if 'locus dy' not in data or data['locus dy'] == '' else int(data['locus dy'])
-            uppermost = min(min(forbidY0s), catPos[1], locusY0)
+            antireqY0 = 0 if 'antireq dy' not in data or data['antireq dy'] == '' else int(data['antireq dy'])
+            uppermost = min(min(forbidY0s), catPos[1], locusY0, antireqY0)
             curY = 10*((endOfLastY - uppermost + 12)//10)
 
         g.putcells(required, curX+reqPos[0], curY+reqPos[1])
+        if len(antirequired) > 1:
+            g.putcells(antirequired, curX+antirequiredPos[0], curY+antirequiredPos[1])
+            [_,_, widthAnti, heightAnti] = GetBoundingBox(antirequired)
+        else:
+            widthAnti, heightAnti = 0,0
+
         g.putcells(catalyst, curX+catPos[0], curY+catPos[1], 1,0,0,1,"xor")
-        [_,_, width, height] = GetBoundingBox(catalyst)
-        endOfLastX = curX+catPos[0]+width
-        endOfLastY = curY+catPos[1]+height
+        [_,_, widthCat, heightCat] = GetBoundingBox(catalyst)
+        endOfLastX = curX+catPos[0]+max(widthCat, widthAnti)
+        endOfLastY = curY+catPos[1]+max(heightCat, heightAnti)
         
         
         # catalyst with locus as state 4/5 [if there is locus]
