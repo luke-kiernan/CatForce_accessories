@@ -60,7 +60,7 @@ for keyword in keywordToHeadings:
     if keyword not in keywordsSeen:
         for row in csvEntries:
             del row[headerList.index(keyword):(headerList.index(keyword)+3)]
-        del headerList[-3:-1]
+        del headerList[-3:]
 
 for row in csvEntries:
     while(len(row) < len(headerList)+3*maxForbidden):
