@@ -106,6 +106,7 @@ with open(file, newline='') as csvfile:
 
             g.putcells(locus, curX+locusPos[0], curY+locusPos[1])
             g.putcells(catalyst, curX+catPos[0], curY+catPos[1], 1,0,0,1,"xor")
+            [_,_, width, height] = GetBoundingBox(locus)
             endOfLastX = curX+catPos[0]+width
             endOfLastY = max(endOfLastY, curY+catPos[1]+height)
 
