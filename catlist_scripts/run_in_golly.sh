@@ -15,3 +15,4 @@ done
 echo "'''.split(chr(10))[1:-1]" >> tmpfile.py
 cat "$1" >> tmpfile.py
 $GOLLYPATH tmpfile.py
+rm tmpfile.py
