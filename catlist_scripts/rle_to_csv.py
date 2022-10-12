@@ -3,7 +3,9 @@ from copy import copy
 import golly as g
 import os
 import csv
+import sys
 from itertools import product
+MAX_PERIOD = 25
 # potential improvement: check that the catalysts really are periodic,
 # to protect against bad input.
 
@@ -90,6 +92,7 @@ def SplitIntoBlocksByRepeatedZeros(stringOfZerosAndOnes, howManyZeros):
     if blockStart != -1:
         blocks.append((blockStart, len(stringOfZerosAndOnes)-1))
     return blocks
+
 inGolly = True
 try: # compatibility with run_in_golly.sh
     g.open(pseudo_argv[1])
@@ -108,16 +111,16 @@ except NameError:
 
     g.note('Program for producing lists for CatForce.')
     g.note('1 catalyst per row. \n First entry: sparker/catalyst, with state 4/5 for required cells. \n Optionally: locus as second entry, with state 4/5 for locus. \n Rest are forbidden, only state 3 cells.')
-    g.note('Include at least 5 cells between rows, and 5 cells between entries in the in the row.')
+    #g.note(f'Include at least {minRowGap} cells between rows, and {minEntryGap}  cells between entries in the in the row.')
     g.note('Patterns don\'t need to exactly line up in each row, but they shouldn\'t be off by more than 7.')
     g.note('In the first entry, draw a single white cell at the spark--the catalyst will be centered there.')
-    g.note('Period, symmetry, and max absence time must be entered by hand.')
+    g.note('Symmetry and max absence time must be entered by hand.')
 
-    periodic = g.getstring("periodic catalyst list? y/n") == 'y'
+    periodic = g.getstring("periodic catalyst list? y/n \n(Needed for required vs antirequired)") == 'y'
     minGap = int(g.getstring("Please enter minimum gap between entries and rows:"))
 
-    minRowGap = minGap
-    minEntryGap = minGap
+    minRowGap = int(minGap)
+    minEntryGap = int(minGap)
     fname = g.savedialog("Save csv catalyst list", "*.csv")
     if fname == '':
         g.exit("File save canceled.")
@@ -187,15 +190,11 @@ for entryBboxes in rectanglesInRow:
     for i in range(2):
         if len(cells[i]) >= 1:
             dataDict[names[i]] = LifeHistoryToRLE(g.getcells(entryBboxes[0]), cellStates[i])
-            x0, y0= min(reqCells[::2]), min(reqCells[1::2])
+            x0, y0= min(cells[i][::2]), min(cells[i][1::2])
             dataDict[shorthands[i]+' dx'] = x0 - center[0]
             dataDict[shorthands[i]+' dy'] = y0 - center[1]
-        else:
-            dataDict[names[i]] = ''
-            dataDict[shorthands[i]+' dx'] = ''
-            dataDict[shorthands[i]+' dy'] = ''
         if periodic:
-            break
+            break # no antirequired
 
 
     # want (dxReq, dyReq) such that
@@ -205,9 +204,32 @@ for entryBboxes in rectanglesInRow:
 
     patCellsCentered = g.transform(g.getcells(entryBboxes[0]), -center[0], -center[1])
     patLifeCellsCentered = LifeHistoryToLife(patCellsCentered)
-    patCoordsCentered = [tuple(patLifeCellsCentered[i:i+2]) for i in range(0, len(patLifeCellsCentered), 2)]
+    patCoordsCentered = [tuple(patLifeCellsCentered[i:i+2]) 
+                        for i in range(0, len(patLifeCellsCentered), 2)]
 
-    dataDict['period'] = ''
+    # make sure it really is periodic or stable.
+    checkUntil = 1 if not periodic else MAX_PERIOD
+    g.putcells(g.getcells(entryBboxes[0]), (xMin-100)-x0Pat, (yMin-100)-y0Pat)
+    sortedCellsAtStart = ExtractState([xMin-100, yMin-100, 64, 64], [1,3,5], sortList = True)
+    g.select([xMin-164, yMin-164, 128, 128])
+    for n in range(checkUntil):
+        g.advance(0,1)
+        if ExtractState([xMin-164, yMin-164, 128, 128], None, sortList = True) == sortedCellsAtStart:
+            if periodic:
+                dataDict['period'] = str(n+1)
+            g.select([xMin-164, yMin-164, 128, 128])
+            g.clear(0)
+            break
+        if n + 1 == checkUntil:
+            if inGolly:
+                g.select(entryBboxes[0])
+                g.fitsel()
+                g.exit(f'A catalyst failed to be periodic (of period < {MAX_PERIOD}) or stable. View is centered on that catalyst.')
+            else:
+                sys.stderr.write(f'A catalyst failed to be periodic (of period < {MAX_PERIOD}) or stable.\n')
+                sys.stderr.write(f'Check catalyst with rle {dataDict["rle"]}\n')
+                exit(2)
+
     startAt = 1
 
     for i in range(1, len(entryBboxes)):
@@ -248,22 +270,16 @@ for entryBboxes in rectanglesInRow:
         if not foundMatch:
             msg = "Failed to be able to match up live cells in required or locus to those in the catalyst."
             if inGolly:
-                g.warn(msg)
+                g.select(entryBboxes[i])
+                g.fitsel()
+                g.exit(msg + " (View is centered on problematic catalyst. Check gaps between rows, entries in row.)")
             else:
-                import sys
                 sys.stderr.write(msg+"\n")
                 exit(2)
-
-    if 'locus' not in dataDict:
-        dataDict['locus'] = ''
-        dataDict['locus dx'] = ''
-        dataDict['locus dy'] = ''
     
     maxForbidden = max(len(entryBboxes) - startAt, maxForbidden)
     
     dataDict['name'] = f'cat {catNumber}'
-    dataDict['symType'] = ''
-    dataDict['absence'] = ''
 
     catNumber += 1
 
@@ -271,7 +287,13 @@ for entryBboxes in rectanglesInRow:
 
 
         
-keys = ['name', 'absence', 'rle', 'dx', 'dy', 'symType', 'period', 'required', 'req dx', 'req dy', 'locus', 'locus dx', 'locus dy']
+keys = ['name', 'absence', 'rle', 'dx', 'dy', 'symType']
+if periodic:
+    keys+=['period']
+keys += ['locus', 'locus dx', 'locus dy', 'required', 'req dx', 'req dy']
+if not periodic:
+    keys += ['antirequired', 'antireq dx', 'antireq dy']
+
 for i in range(1, maxForbidden+1):
     keys += [f'forbidden {i}', f'forbid {i} dx', f'forbid {i} dy']
 
