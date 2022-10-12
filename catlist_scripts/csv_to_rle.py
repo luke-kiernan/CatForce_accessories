@@ -106,9 +106,10 @@ with open(file, newline='') as csvfile:
             curX = 10*((endOfLastX - catPos[0] + 20) // 10)
             # g.warn(str(locus))
 
+            # expect that locus will be subset of catalyst.
             g.putcells(locus, curX+locusPos[0], curY+locusPos[1])
             g.putcells(catalyst, curX+catPos[0], curY+catPos[1], 1,0,0,1,"xor")
-            [_,_, width, height] = GetBoundingBox(locus)
+            [_,_, width, height] = GetBoundingBox(catalyst)
             endOfLastX = curX+catPos[0]+width
             endOfLastY = max(endOfLastY, curY+catPos[1]+height)
 
@@ -123,6 +124,6 @@ with open(file, newline='') as csvfile:
             endOfLastX = curX + forbidX + width
             endOfLastY = max(endOfLastY, curY+forbidY+height)
             i += 1
-if not inGolly and saveName != "catlist.csv":
+if not inGolly and saveName != "catlist.rle":
     g.save(saveName, "rle")
     exit(0)
