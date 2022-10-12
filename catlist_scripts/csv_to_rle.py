@@ -1,6 +1,8 @@
 import golly as g
 import itertools
 import csv
+# possible improvements: detecting bad input.
+# could check if pattern is stable/periodic, if forbidden contain the catalyst, etc.
 def AddPadding(cellList):
     if len(cellList) % 2 == 0:
         cellList.append(0)
@@ -24,30 +26,30 @@ def GetBoundingBox(cellList):
         return [0,0,0,0]
     return g.getselrect()
 
-# assumed formatting:
-# name,absence,rle,x0,y0,sym,requiredRLE,reqX0,reqY0,forbiddenRLE,forbidX0,forbidY0,[more forbid]
-# so: 0 for name
-#     1 for absence
-#     2 for rle
-#     3-4 for coord
-#     5 for sym
-#     6-8 for required (RLE, coord)
-#     9+ forbidden (RLE, coord)
-# I assume catalysts aren't bigger than 20x20.
-file = g.opendialog("Catalyst file as CSV", "csv")
-g.new("catlist.rle")
+# assumed formatting of column headers:
+# name,absence,rle,dx,dy,sym,locus,locus dx,locus dy,required,req dx,req dy,antirequired,antireq dx,antireq dy,
+#  forbidden 1,forbid 1 dx,forbid 1 dy,[more forbidden]
+inGolly = True
+try: # compatibility with run_in_golly.sh
+    # pseudo arguments: [inFile] [saveName], second being optional; if second is provided, we quit on end of script
+    file = pseudo_argv[1]
+    inGolly = False
+    if len(pseudo_argv) > 2:
+        saveName = pseudo_argv[2]
+    else:
+        saveName = "catlist.rle"
+except NameError:
+    file = g.opendialog("Catalyst file as CSV", "csv")
+    saveName = "catlist.rle"
+g.new(saveName)
 g.setrule("LifeHistory")
 with open(file, newline='') as csvfile:
     reader = csv.DictReader(csvfile)
     firstRow = True
     for data in reader:
 
-        #name = data[0] unused
-        #absenceInterval = data[1] unused
-        #g.warn(data[2])
         catalyst = ConvertToLifeHistory(g.parse(data['rle']),1)
         catPos = (int(data['dx']), int(data['dy']))
-        #sym = data[5] unused
         required = ConvertToLifeHistory( [] if data['required'] == '' else g.parse(data['required']), 4)
         reqPos = [0,0] if data['required'] == '' else [int(data['req dx']), int(data['req dy'])]
         if 'locus' not in data or 'o' not in data['locus']:
@@ -83,7 +85,7 @@ with open(file, newline='') as csvfile:
             locusY0 = 0 if 'locus dy' not in data or data['locus dy'] == '' else int(data['locus dy'])
             antireqY0 = 0 if 'antireq dy' not in data or data['antireq dy'] == '' else int(data['antireq dy'])
             uppermost = min(min(forbidY0s), catPos[1], locusY0, antireqY0)
-            curY = 10*((endOfLastY - uppermost + 12)//10)
+            curY = 10*((endOfLastY - uppermost + 20)//10)
 
         g.putcells(required, curX+reqPos[0], curY+reqPos[1])
         if len(antirequired) > 1:
@@ -101,7 +103,7 @@ with open(file, newline='') as csvfile:
         # catalyst with locus as state 4/5 [if there is locus]
         if len(locus) > 1:
             # need extra room, due to shifting catPos[0] to the left
-            curX = 10*((endOfLastX - catPos[0] + 12) // 10)
+            curX = 10*((endOfLastX - catPos[0] + 20) // 10)
             # g.warn(str(locus))
 
             g.putcells(locus, curX+locusPos[0], curY+locusPos[1])
@@ -110,14 +112,17 @@ with open(file, newline='') as csvfile:
             endOfLastX = curX+catPos[0]+width
             endOfLastY = max(endOfLastY, curY+catPos[1]+height)
 
-        # now display forbidden\
+        # now display forbidden
         i = 1
         while f'forbid {i} dx' in data and data[f'forbid {i} dx'] != '':
             forbidX, forbidY = int(data[f'forbid {i} dx']), int(data[f'forbid {i} dy'])
-            curX = 10*((endOfLastX - forbidX + 12) // 10)
+            curX = 10*((endOfLastX - forbidX + 20) // 10)
             forbidState = ConvertToLifeHistory(g.parse(data[f'forbidden {i}']), 1)
             [_,_, width, height] = GetBoundingBox(forbidState)
             g.putcells(forbidState, curX+forbidX, curY+forbidY)
             endOfLastX = curX + forbidX + width
             endOfLastY = max(endOfLastY, curY+forbidY+height)
             i += 1
+if not inGolly and saveName != "catlist.csv":
+    g.save(saveName, "rle")
+    exit(0)
