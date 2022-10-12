@@ -4,14 +4,8 @@ import golly as g
 import os
 import csv
 from itertools import product
-
-g.note('Program for producing lists for periodic CatForce.')
-g.note('1 catalyst per row. \n First entry: sparker/catalyst, with state 4/5 for required cells. \n Optionally: locus as second entry, with state 4/5 for locus. \n Rest are forbidden, only state 3 cells.')
-g.note('Include at least 5 cells between rows, and 5 cells between entries in the in the row.\n '+
-        'Patterns don\'t need to exactly line up in each row, but they shouldn\'t be off by more than 7.')
-g.note('In the first entry, draw a single white cell at the spark--the catalyst will be centered there.')
-g.note('Period, symmetry, and max absence time must be entered by hand.')
-# states 3/4/5 = required (matching) cells
+# potential improvement: check that the catalysts really are periodic,
+# to protect against bad input.
 
 def TrimCellList(cellList):
     if len(cellList) % 6 == 1: cellList.pop()
@@ -27,6 +21,8 @@ def AddPadding(cellList):
 def LifeHistoryToLife(cellList, states = None):
     if states is None:
         states = [1,3,5]
+    if len(states) == 0:
+        return []
     TrimCellList(cellList)
     newList = []
     for i in range(0,len(cellList),3):
@@ -83,19 +79,6 @@ def GetMinRect(rectList):
     g.strink()
     return g.getselrect()
 
-minRowGap = 4
-minEntryGap = 4
-
-# list of list of rectangle lists
-# each list is the entries in 1 row.
-rectanglesInRow = []
-[xMin, yMin , w, h ] = g.getrect()
-
-y = yMin
-rowStartY = yMin
-lastNonemptyRow = yMin
-streakOfEmptyRows = 0
-
 def SplitIntoBlocksByRepeatedZeros(stringOfZerosAndOnes, howManyZeros):
     blocks = []
     blockStart = stringOfZerosAndOnes.find('1')
@@ -108,6 +91,39 @@ def SplitIntoBlocksByRepeatedZeros(stringOfZerosAndOnes, howManyZeros):
         blocks.append((blockStart, len(stringOfZerosAndOnes)-1))
     return blocks
 
+try: # compatibility with run_in_golly.sh
+    g.open(pseudo_argv[1])
+    fname = pseudo_argv[2]
+    if len(pseudo_argv) > 3:
+        periodic = pseudo_argv[3] == 'periodic'
+    if len(pseudo_argv) > 4:
+        minRowGap = int(pseudo_argv[4])
+        minEntryGap = int(pseudo_argv[4])
+    else:
+        minRowGap = 4
+        minEntryGap = 4
+
+except NameError:
+
+    g.note('Program for producing lists for CatForce.')
+    g.note('1 catalyst per row. \n First entry: sparker/catalyst, with state 4/5 for required cells. \n Optionally: locus as second entry, with state 4/5 for locus. \n Rest are forbidden, only state 3 cells.')
+    g.note('Include at least 5 cells between rows, and 5 cells between entries in the in the row.')
+    g.note('Patterns don\'t need to exactly line up in each row, but they shouldn\'t be off by more than 7.')
+    g.note('In the first entry, draw a single white cell at the spark--the catalyst will be centered there.')
+    g.note('Period, symmetry, and max absence time must be entered by hand.')
+
+    periodic = g.getstring("periodic catalyst list? y/n") == 'y'
+    minGap = int(g.getstring("Please enter minimum gap between entries and rows:"))
+
+    minRowGap = minGap
+    minEntryGap = minGap
+    fname = g.savedialog("Save csv catalyst list", "*.csv")
+    if fname == '':
+        g.exit("File save canceled.")
+# list of list of rectangle lists
+# each list is the entries in 1 row.
+rectanglesInRow = []
+[xMin, yMin , w, h ] = g.getrect()
 # figure out spacing, break up rle into rows and entries in each row
 rowsNonempty = ''
 for y in range(yMin, yMin+h+1):
@@ -128,7 +144,6 @@ allCSVRows = []
 
 catNumber = 1
 
-g.warn("analyzing entries in each row...")
 
 for entryBboxes in rectanglesInRow:
     dataDict = {}
@@ -155,19 +170,32 @@ for entryBboxes in rectanglesInRow:
     dataDict['rle'] = stateRLE
     dataDict['dx'] = -(center[0]-x0Pat)
     dataDict['dy'] = -(center[1]-y0Pat)
-
-    reqCells = LifeHistoryToLife(g.getcells(entryBboxes[0]), [4,5])
-    # reqCells = LifeHistoryToLife(g.getcells(entryBboxes[0]), [3,4,5])
-    if len(reqCells) >= 1:
-        #dataDict['required'] = LifeHistoryToRLE(g.getcells(entryBboxes[0]), [3,4,5])
-        dataDict['required'] = LifeHistoryToRLE(g.getcells(entryBboxes[0]), [4,5])
-        x0Req, y0Req = min(reqCells[::2]), min(reqCells[1::2])
-        dataDict['req dx'] = x0Req - center[0]
-        dataDict['req dy'] = y0Req - center[1]
+    if periodic:
+        reqStates = [4,5]
+        antiReqStates = []
     else:
-        dataDict['required'] = ''
-        dataDict['req dx'] = ''
-        dataDict['req dy'] = ''
+        reqStates = [5]
+        antiReqStates = [4]
+    reqCells = LifeHistoryToLife(g.getcells(entryBboxes[0]), reqStates)
+    antiReqCells = LifeHistoryToLife(g.getcells(entryBboxes[0]), antiReqStates)
+    
+    cellStates = [reqStates,antiReqStates]
+    cells = [reqCells, antiReqCells]
+    names = ['required', 'antirequired']
+    shorthands = ['req', 'antireq']
+    for i in range(2):
+        if len(cells[i]) >= 1:
+            dataDict[names[i]] = LifeHistoryToRLE(g.getcells(entryBboxes[0]), cellStates[i])
+            x0, y0= min(reqCells[::2]), min(reqCells[1::2])
+            dataDict[shorthands[i]+' dx'] = x0 - center[0]
+            dataDict[shorthands[i]+' dy'] = y0 - center[1]
+        else:
+            dataDict[names[i]] = ''
+            dataDict[shorthands[i]+' dx'] = ''
+            dataDict[shorthands[i]+' dy'] = ''
+        if periodic:
+            break
+
 
     # want (dxReq, dyReq) such that
     # default position required shifted by (dxReq, dyReq)
@@ -188,7 +216,7 @@ for entryBboxes in rectanglesInRow:
             dataDict[f'locus'] = LifeHistoryToRLE(g.getcells(entryBboxes[i]), [4,5])
             startAt = 2
         else:
-            relevantCells = LifeHistoryToLife(g.getcells(entryBboxes[1]))
+            relevantCells = LifeHistoryToLife(g.getcells(entryBboxes[i]))
             dataDict[f'forbidden {i-startAt+1}'] = LifeHistoryToRLE(g.getcells(entryBboxes[i]))
 
         lifeCells = LifeHistoryToLife(g.getcells(entryBboxes[i]))
@@ -236,10 +264,14 @@ keys = ['name', 'absence', 'rle', 'dx', 'dy', 'symType', 'period', 'required', '
 for i in range(1, maxForbidden+1):
     keys += [f'forbidden {i}', f'forbid {i} dx', f'forbid {i} dy']
 
-fname = g.savedialog("Save csv catalyst list", "*.csv")
-if fname == '':
-    g.exit("File save canceled.")
+
 with open(fname, 'w', newline='') as f:
     writer = csv.DictWriter(f, fieldnames = keys)
     writer.writeheader()
     writer.writerows(allCSVRows)
+
+try:
+    _ = pseudo_argv[0]
+    exit(0)
+except NameError:
+    pass
