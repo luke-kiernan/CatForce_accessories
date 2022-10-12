@@ -6,6 +6,7 @@
 #                   NameError => we're running in Golly, so we ask user for input
 #                   no NameError => use pseudo_argv values, put there by this script
 # so now ./run_in_golly.sh my_golly_script.py arg1 arg2 ... argN does the desired thing.
+set -e
 GOLLYPATH="/Applications/golly-4.1-mac/Golly.app/contents/MacOS/Golly"
 echo "pseudo_argv = r'''" > tmpfile.py
 for var in "$@"; do
