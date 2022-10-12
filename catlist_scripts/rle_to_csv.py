@@ -90,9 +90,10 @@ def SplitIntoBlocksByRepeatedZeros(stringOfZerosAndOnes, howManyZeros):
     if blockStart != -1:
         blocks.append((blockStart, len(stringOfZerosAndOnes)-1))
     return blocks
-
+inGolly = True
 try: # compatibility with run_in_golly.sh
     g.open(pseudo_argv[1])
+    inGolly = False
     fname = pseudo_argv[2]
     if len(pseudo_argv) > 3:
         periodic = pseudo_argv[3] == 'periodic'
@@ -228,6 +229,7 @@ for entryBboxes in rectanglesInRow:
             lifeCellsWRelevantAtOrigin[j+1] -= relevantY0
         # upper rigth corner of life cells is now at (lifeX0 - relevantX0, lifeY0 - relevantY0)
         translations = sorted(list(product(range(-7, 8), range(-7, 8))), key = lambda x : abs(x[0])+abs(x[1]))
+        foundMatch  = False
         for transl in translations:
             shiftedLifeCoords = [(lifeCellsWRelevantAtOrigin[i]+transl[0]+dataDict['dx']+(relevantX0 - lifeX0),
                                             lifeCellsWRelevantAtOrigin[i+1]+transl[1]+dataDict['dy']+(relevantY0-lifeY0))
@@ -241,7 +243,16 @@ for entryBboxes in rectanglesInRow:
                 else:
                     dataDict[f'forbid {i-startAt+1} dx'] = transl[0]+dataDict['dx'] + (relevantX0 - lifeX0)
                     dataDict[f'forbid {i-startAt+1} dy'] = transl[1]+dataDict['dy'] + (relevantY0 - lifeY0)
+                foundMatch = True
                 break
+        if not foundMatch:
+            msg = "Failed to be able to match up live cells in required or locus to those in the catalyst."
+            if inGolly:
+                g.warn(msg)
+            else:
+                import sys
+                sys.stderr.write(msg+"\n")
+                exit(2)
 
     if 'locus' not in dataDict:
         dataDict['locus'] = ''
@@ -270,8 +281,5 @@ with open(fname, 'w', newline='') as f:
     writer.writeheader()
     writer.writerows(allCSVRows)
 
-try:
-    _ = pseudo_argv[0]
+if not inGolly:
     exit(0)
-except NameError:
-    pass
