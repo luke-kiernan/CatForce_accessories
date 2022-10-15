@@ -26,6 +26,10 @@ with open(sys.argv[1], 'r', newline='', encoding = 'utf-8') as f:
                 reqRLE = data['required'] if 'required' in keys else data['req rle']
                 if reqRLE != '':
                     print(f" required {reqRLE} {data['req dx']} {data['req dy']}", end = '')
+            if 'antirequired' in keys or 'antireq rle' in keys:
+                antireqRLE = data['antirequired'] if 'antirequired' in keys else data['antireq rle']
+                if antireqRLE != '':
+                    print(f" antirequired {antireqRLE} {data['antireq dx']} {data['antireq dy']}", end = '')
             if 'locus' in keys and 'locus' in data and 'o' in data['locus']:
                 print(f" locus {data['locus']} {data['locus dx']} {data['locus dy']}", end = '')
             n = 1
