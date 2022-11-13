@@ -2,6 +2,9 @@
 
 import sys
 import csv
+import re
+
+namesToIgnore=[] # "cat *", "unnamed", "two blocks *", "two fishhooks *"]
 
 assert(len(sys.argv) == 2 or len(sys.argv) == 3), "Too many or to few arguments.\nPlease specify the name of the CSV-style catalyst list."
 includeNames = (len(sys.argv) == 3 and sys.argv[2][0].lower() == 'n')
@@ -15,7 +18,8 @@ with open(sys.argv[1], 'r', newline='', encoding = 'utf-8') as f:
             if includeNames:
                 if 'period' in data and data['period'] != lastPeriod:
                     print(f"\n# ============ period {data['period']} ============")
-                print(f"# ==={data['name']}===")
+                if all([re.search(regexPat,data['name']) is None for regexPat in namesToIgnore]):
+                    print(f"# ==={data['name']}===")
             if 'stable' in keys:
                 stableInterval = data['stable']
             else:
