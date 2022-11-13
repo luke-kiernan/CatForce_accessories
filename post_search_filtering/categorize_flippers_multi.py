@@ -6,6 +6,9 @@ from categorize_by_match_multi import NumberToLifeState, FixWraparound
 from math import ceil
 sess = lifelib.load_rules("b3s23")
 lt = sess.lifetree(n_layers=1)
+# larger torus branch: use 128 and 200 instead
+TORUS_SIZE = 64
+GAP = 100
 
 allOrientations = ["identity", "rot270", "rot180", "rot90", "flip_x", "flip_y", "swap_xy", "swap_xy_flip"]
 
@@ -85,10 +88,10 @@ def Nontrivial(result, activeRegion, lastGen):
     return False
 
 def WrapEdges(result):
-    result += result[:, -32:-22].shift(0,64)
-    result += result[-32:-22, :].shift(64,0)
-    result += result[:, 22:32].shift(0,-64)
-    result += result[22:32, :].shift(-64,0)
+    result += result[:, -TORUS_SIZE//2:-TORUS_SIZE//2+10].shift(0,TORUS_SIZE)
+    result += result[-TORUS_SIZE//2:-TORUS_SIZE//2+10, :].shift(TORUS_SIZE,0)
+    result += result[:, TORUS_SIZE//2:TORUS_SIZE//2+10].shift(0,-TORUS_SIZE)
+    result += result[TORUS_SIZE//2:TORUS_SIZE//2+10, :].shift(-TORUS_SIZE,0)
 
 def CheckHowFlips(result, genRange, orientedActive, orientedActiveDead):
     workspace = result + lt.pattern('')
@@ -162,22 +165,22 @@ if __name__ == '__main__':
                 genZeroResults = genZeroResults.shift(*shift)
 
         # figure out active pattern
-        firstResult = genZeroResults[0:64,0:64].shift(-32,-32)
+        firstResult = genZeroResults[0:TORUS_SIZE,0:TORUS_SIZE].shift(-TORUS_SIZE//2,-TORUS_SIZE//2)
         activePat = FindActivePattern(firstResult, patToMatchRLE)
         catalysts = firstResult - activePat
         periodic = catalysts == catalysts[1]
         orientedActive, orientedActiveDead = ComputeOrientationsAndDeadCells(activePat)
         activeDeadCells = orientedActiveDead[0]
         # sys.stderr.write("done figuring out active pattern\n")
-        for y in range(0, genZeroResults.bounding_box[1]+genZeroResults.bounding_box[3], 100):
+        for y in range(0, genZeroResults.bounding_box[1]+genZeroResults.bounding_box[3], GAP):
 
             scoredCategoryResults = []
 
             # figure out if/how it flips.
-            category = genZeroResults[0:genZeroResults.bounding_box[2], y:(y+64)].shift(0, -y-32)
+            category = genZeroResults[0:genZeroResults.bounding_box[2], y:(y+TORUS_SIZE)].shift(0, -y-TORUS_SIZE//2)
             x0 = 0
             g = -1
-            testResult = category[x0:(x0+64), -32:32].shift(-x0-32, 0)
+            testResult = category[x0:(x0+TORUS_SIZE), -TORUS_SIZE//2:TORUS_SIZE//2].shift(-x0-TORUS_SIZE//2, 0)
             while(g == -1 and testResult.nonempty()):
                 # sys.stderr.write(f"trying the result at x={x0}\n")
                 g, op, translation = CheckHowFlips(testResult, (startGen, endGen), orientedActive, orientedActiveDead)
@@ -188,9 +191,9 @@ if __name__ == '__main__':
                     g, op, translation = CheckHowFlips(testResult, (startGen, endGen), orientedActive, orientedActiveDead)
                 if g == -1:
                     # no luck. try the next result in the category, maybe it's better.
-                    x0 += 100
-                    testResult = category[x0:(x0+64), -32:32].shift(-x0-32, 0)
-                if x0 > 5*100:
+                    x0 += GAP
+                    testResult = category[x0:(x0+TORUS_SIZE), -TORUS_SIZE//2:TORUS_SIZE//2].shift(-x0-TORUS_SIZE//2, 0)
+                if x0 > 5*GAP:
                     # so we don't spend forever if things don't seem to be working.
                     testResult = lt.pattern('')
 
@@ -212,8 +215,8 @@ if __name__ == '__main__':
             
             # the rest of the ones in the row flip the same way, which saves us some trouble.
             scores = []
-            for x in range(0, category.bounding_box[0]+category.bounding_box[2], 100):
-                result = category[x:(x+64), -32:32].shift(-x-32, 0)
+            for x in range(0, category.bounding_box[0]+category.bounding_box[2], GAP):
+                result = category[x:(x+TORUS_SIZE), -TORUS_SIZE//2:TORUS_SIZE//2].shift(-x-TORUS_SIZE//2, 0)
                 catalysts = result - activePat
                 
                 if not (flippedActivePat <= result[g]):
@@ -311,13 +314,13 @@ if __name__ == '__main__':
     sortedKeys = sorted(results.keys())
     yNew = 0
     for gen in sortedKeys:
-        sortedResults += NumberToLifeState(gen).shift(-50, yNew+32)
+        sortedResults += NumberToLifeState(gen).shift(-GAP//2, yNew+TORUS_SIZE//2)
         xEndOfLast = -25
         for _, result in results[gen]:
-            xStartNextResult = 100*int(ceil((xEndOfLast+20)/100))
-            sortedResults += result.shift(xStartNextResult+32, yNew+32)
+            xStartNextResult = GAP*int(ceil((xEndOfLast+20)/GAP))
+            sortedResults += result.shift(xStartNextResult+TORUS_SIZE//2, yNew+TORUS_SIZE//2)
             xEndOfLast = xStartNextResult + result.bounding_box[2]
-        yNew += 100
+        yNew += GAP
     print(sortedResults.rle_string())
     sys.stderr.write('Category breakdown:'+os.linesep)
     for key, val in dict(categoryBreakdown).items():
