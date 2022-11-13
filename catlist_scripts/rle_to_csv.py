@@ -6,8 +6,6 @@ import csv
 import sys
 from itertools import product
 MAX_PERIOD = 25
-# potential improvement: check that the catalysts really are periodic,
-# to protect against bad input.
 
 def TrimCellList(cellList):
     if len(cellList) % 6 == 1: cellList.pop()
@@ -155,6 +153,10 @@ for entryBboxes in rectanglesInRow:
     stateRLE = LifeHistoryToRLE(g.getcells(entryBboxes[0]))
     
     patCells = LifeHistoryToLife(g.getcells(entryBboxes[0]))
+    if len(patCells) == 0:
+        g.select(entryBboxes[0])
+        g.fitsel()
+        g.warn("problem with selected box")
     x0Pat, y0Pat = min(patCells[::2]), min(patCells[1::2])
     w, h = max(patCells[::2])-x0Pat+1,max(patCells[1::2])-y0Pat+1
 
