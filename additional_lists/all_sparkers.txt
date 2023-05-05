@@ -221,8 +221,8 @@ cat 8bo$7bo2bo$10bo$5bo5bo$5b3o3b2o$3b2obo4bobo$4b2ob4ob3o$bo2bobo4bo3b2o$o5bob2
 # ============ period 13 ============
 # ===66P13===
 cat 5bo$3b5o$2bo5bo$2bo2b3o10b2o$b2obo13bo$o3b2o10bobo$bobo2bo3bo2bo2b2o$2ob3o8bo$7bo6bo$2ob3o8bo$bobo2bo3bo2bo$o3b2o$b2obo$2bo2b3o$2bo5bo$3b5o$5bo! 12 -14 -8 * required 5b3o$3b8o$2b9o$2b9o7b4o$b10o7b4o$10o6b6o$8o8b5o$21o$20o$15o$14o$14o$8o$10o$b10o$2b9o$2b9o$3b8o$5b3o! -15 -9 locus 2bo$b2o$o! -1 0 period 13
-# ===cat 2===
-cat 3bo2bobo$3b4ob3o$11bo$b6ob2obo$o2bo2bobobo$2o3$5b3o$5bo2bo$3bo$9bo$9bo$3bo$5bo2bo$5b3o3$2o$o2bo2bobobo$b6ob2obo$11bo$3b4ob3o$3bo2bobo!  -9 -12  required 3b8o$3b10o$3b11o$b13o$14o$14o$13o$11o$4b7o$4b7o$4b6o$4b6o$4b6o$4b6o$4b6o$4b6o$4b7o$4b7o$11o$13o$14o$14o$b13o$3b11o$3b10o$3b8o! -10 -13 locus o$2o$2o$o! -1 -2 period 13
+# ===p13 domino===
+cat 3bo2bobo$3b4ob3o$11bo$b6ob2obo$o2bo2bobobo$2o3$5b3o$5bo2bo$3bo$9bo$9bo$3bo$5bo2bo$5b3o3$2o$o2bo2bobobo$b6ob2obo$11bo$3b4ob3o$3bo2bobo! 12 -9 -12 x required 3b8o$3b10o$3b11o$b13o$14o$14o$13o$11o$4b7o$4b7o$4b6o$4b6o$4b6o$4b6o$4b6o$4b6o$4b7o$4b7o$11o$13o$14o$14o$b13o$3b11o$3b10o$3b8o! -10 -13 locus o$2o$2o$o! -1 -2 period 13
 
 # ============ period 14 ============
 # ===34P14 shuttle===
