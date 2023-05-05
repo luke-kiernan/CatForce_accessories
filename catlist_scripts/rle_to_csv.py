@@ -170,6 +170,8 @@ for entryBboxes in rectanglesInRow:
     if len(ExtractState(entryBboxes[0], [3])) == 1:
         center = ExtractState(entryBboxes[0], [3])[0]
     else:
+        # I should really just take the center of the locus.
+        
         center = (ceil(x0Pat+w/2)//1, ceil(y0Pat+h/2)//1)
 
 
@@ -301,7 +303,7 @@ for i in range(1, maxForbidden+1):
 
 
 with open(fname, 'w', newline='') as f:
-    writer = csv.DictWriter(f, fieldnames = keys)
+    writer = csv.DictWriter(f, fieldnames = keys, lineterminator = '\n')
     writer.writeheader()
     writer.writerows(allCSVRows)
 
