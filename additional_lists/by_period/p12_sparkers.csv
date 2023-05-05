@@ -1,2 +1,2 @@
-name,absence,rle,dx,dy,symType,period,required,req dx,req dy,locus,locus dx,locus dy
-eye of Sauron,12,8bo$7bo2bo$10bo$5bo5bo$5b3o3b2o$3b2obo4bobo$4b2ob4ob3o$bo2bobo4bo3b2o$o5bob2obo$6bob2obo5bo$b2o3bo4bobo2bo$3b3ob4ob2o$4bobo4bob2o$5b2o3b3o$6bo5bo$7bo$7bo2bo$9bo!,-8,0,|,12,3b6o$3b7o$3b8o$b11o$13o$14o$14o$14o$14o$14o$b13o$2b11o$3b9o$4b7o!,-6,2,,,
+name,absence,rle,dx,dy,symType,period,locus,locus dx,locus dy,required,req dx,req dy
+eye of Sauron,12,8bo$7bo2bo$10bo$5bo5bo$5b3o3b2o$3b2obo4bobo$4b2ob4ob3o$bo2bobo4bo3b2o$o5bob2obo$6bob2obo5bo$b2o3bo4bobo2bo$3b3ob4ob2o$4bobo4bob2o$5b2o3b3o$6bo5bo$7bo$7bo2bo$9bo!,-8,0,|,12,,,,3b6o$3b7o$3b8o$b11o$13o$14o$14o$14o$14o$14o$b13o$2b11o$3b9o$4b7o!,-6,2

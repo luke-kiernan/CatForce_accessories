@@ -1,8 +1,8 @@
-name,absence,rle,dx,dy,symType,period,required,req dx,req dy,locus,locus dx,locus dy
-blinker,10,3o!,-2,-1,.,2,,,,,,
-half traffic light,20,3o2$4bo$4bo$4bo!,-3,-3,|,2,,,,,,
-toad,5,3o$b3o!,-2,-1,x,2,3o$b3o!,-2,-1,,,
-killer toads,5,b3o$3o4$3o$b3o!,-2,-4,@,2,b3o$3o4$3o$b3o!,-2,-4,o4$o!,-2,-3
-clock,5,2bo$2o$2b2o$bo!,-2,-2,|,2,b2o$4o$4o$b2o!,-2,-2,,,
-fox and clock,5,4bo$5b2o$3b2o$5bo3$4b3o$2bo$2o2b2o2$2bo2bo$3bo$3bo!,-4,-7,*,2,4b2o$3b4o$3b4o$4b2o2$5bo$4b3o$b6o$6o$b5o$2b4o$2b3o$3bo!,-4,-7,,,
-traffic stop,40,2b3o2$o$o$o$8b2o$2b3o3bobo$10bo$10b2o!,-6,-5,*,2,bo$obo$2bo$2b2o!,2,0,bo$3o$bo!,-4,-6
+name,absence,rle,dx,dy,symType,period,locus,locus dx,locus dy,required,req dx,req dy
+blinker,20,3o!,-1,0,.,2,,,,,,
+half traffic light,20,3o2$4bo$4bo$4bo!,-4,-4,|,2,,,,,,
+toad,5,3o$b3o!,0,0,x,2,,,,2o$3o!,1,0
+killer toads,5,b3o$3o4$3o$b3o!,0,-1,*,2,o$o$bo2$bo$o$o!,0,-1,b3o$b2o4$3o$b3o!,0,-1
+clock,5,2bo$2o$2b2o$bo!,0,-1,|,2,,,,b2o$b3o$4o$b2o!,0,-1
+fox and clock,5,4bo$5b2o$3b2o$5bo3$4b3o$2bo$2o2b2o2$2bo2bo$3bo$3bo!,-6,-6,*,2,,,,4b2o$3b4o$3b4o$4b2o2$5bo$4b2o$b6o$6o$b5o$2b4o$2b3o$3bo!,-6,-6
+traffic stop,40,2b3o2$o$o$o$8b2o$2b3o3bobo$10bo$10b2o!,-2,0,*,2,bo$3o$bo!,0,-1,bo$obo$2bo$2b2o!,6,5
